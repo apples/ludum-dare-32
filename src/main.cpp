@@ -9,6 +9,7 @@
 int main()
 {
     sf::RenderWindow window(sf::VideoMode(800, 600), "Pong");
+	window.setVerticalSyncEnabled(true);
 
     std::vector<std::shared_ptr<Thing>> things;
 
@@ -25,6 +26,10 @@ int main()
                 case sf::Event::Closed: {
                     window.close();
                 }
+				case sf::Event::KeyPressed: {
+					if (event.key.code == sf::Keyboard::Escape)
+						window.close();
+				}
             }
         }
 

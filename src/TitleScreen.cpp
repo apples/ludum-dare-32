@@ -50,7 +50,25 @@ void TitleScreen::update(Engine& engine, double time_step) {
         engine.states.push(items[selected].second);
     }
 
-    // TODO: Add mouse input
+    if (engine.wasMouseButtonPressed(sf::Mouse::Left))
+    {
+        sf::Text text(TitleScreen::text);
+        for (int i = 0; i < items.size(); i++)
+        {
+            text.setString(items[i].first);
+            text.setOrigin(text.getLocalBounds().width/2.f, 0);
+            text.setPosition(engine.window.getSize().x/2, 100 + text.getLocalBounds().height * 2 * (i + 1));
+            sf::FloatRect boundingBox;
+            boundingBox = text.getGlobalBounds();
+            ECHO(boundingBox.left, boundingBox.top, boundingBox.width, boundingBox.height);
+            if (boundingBox.contains(engine.getMousePosition().x, engine.getMousePosition().y))
+            {
+                selected = i;
+                engine.states.push(items[selected].second);
+                break;
+            }
+        }
+    }
 }
 
 void TitleScreen::draw(sf::RenderWindow& window) const {

@@ -46,8 +46,6 @@ class Engine {
     };
 
 
-    sf::RenderWindow window;
-
     sf::Clock clock;
 
     int current_tick = 0;
@@ -76,6 +74,8 @@ public:
     const MousePosition& getMousePosition() const {
         return mousePosition;
     }
+
+    sf::RenderWindow window;
 
     GameStateStack states;
 };

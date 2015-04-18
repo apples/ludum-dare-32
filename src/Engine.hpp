@@ -32,12 +32,25 @@ class Engine {
         int last_pressed = -1;
         int last_released = -1;
     };
+	
+	struct MouseButtonState {
+		int last_pressed = -1;
+		int last_released = -1;
+	};
+
+    struct MousePosition {
+        int x;
+        int y;
+        int wheel = 0;
+    };
 
     GameStateStack states;
     sf::RenderWindow window;
 
     int current_tick = 0;
     std::vector<KeyState> keyboard = std::vector<KeyState>(sf::Keyboard::KeyCount);
+	std::vector<MouseButtonState> mouseButtons = std::vector<MouseButtonState>(sf::Mouse::ButtonCount);
+    MousePosition mousePosition;
 
     void poll_events();
     void update();
@@ -51,6 +64,15 @@ public:
     bool isKeyUp(sf::Keyboard::Key key) const;
     bool wasKeyPressed(sf::Keyboard::Key key) const;
     bool wasKeyReleased(sf::Keyboard::Key key) const;
+	
+	bool isMouseButtonDown(sf::Mouse::Button button) const;
+    bool isMouseButtonUp(sf::Mouse::Button button) const;
+    bool wasMouseButtonPressed(sf::Mouse::Button button) const;
+    bool wasMouseButtonReleased(sf::Mouse::Button button) const;
+
+    const MousePosition& getMousePosition() const {
+        return mousePosition;
+    }
 };
 
 

@@ -5,7 +5,7 @@ find_package(SFML 2 REQUIRED window graphics system)
 add_subdirectory(ginseng)
 
 file(GLOB_RECURSE sources src/*)
-add_executable(game ${sources})
+add_executable(game ${sources} src/GraphicsSandbox.cpp src/GraphicsSandbox.hpp)
 set_property(TARGET game PROPERTY CXX_STANDARD 14)
 target_include_directories(game PRIVATE src/)
 target_include_directories(game PRIVATE ${SFML_INCLUDE_DIRS})

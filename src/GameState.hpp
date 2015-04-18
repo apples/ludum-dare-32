@@ -13,7 +13,7 @@ class GameState {
 public:
     virtual bool halts_update() const { return false; };
     virtual bool halts_draw() const { return false; };
-    virtual void update(Engine& engine) { };
+    virtual void update(Engine& engine, double time_step) { };
     virtual void draw(sf::RenderWindow &window) const { };
     virtual ~GameState() = 0;
 };

@@ -14,7 +14,8 @@ Engine::Engine() {
 
 void Engine::go() {
     states.push(std::make_shared<TitleScreen>());
-    while (window.isOpen()) {
+    clock.restart();
+    while (window.isOpen() && !states.empty()) {
         ++current_tick;
         poll_events();
         update();
@@ -60,7 +61,9 @@ void Engine::poll_events() {
 }
 
 void Engine::update() {
-    states.update(*this);
+    double time_step = clock.getElapsedTime().asSeconds();
+    clock.restart();
+    states.update(*this, time_step);
 }
 
 void Engine::draw() {

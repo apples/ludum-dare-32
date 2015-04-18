@@ -9,14 +9,20 @@
 
 #include <SFML/Graphics.hpp>
 
+#include <vector>
+#include <utility>
+#include <memory>
+
 class TitleScreen : public GameState {
     sf::Font font;
     sf::Text text;
+    std::vector<std::pair<std::string, std::shared_ptr<GameState>>> items;
+    int selected;
 public:
     TitleScreen();
     virtual bool halts_update() const override;
     virtual bool halts_draw() const override;
-    virtual void update(Engine& engine) override;
+    virtual void update(Engine& engine, double time_step) override;
     virtual void draw(sf::RenderWindow& window) const override;
 };
 

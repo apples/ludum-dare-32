@@ -11,11 +11,12 @@
 
 class TitleScreen : public GameState {
     sf::Font font;
+    sf::Text text;
 public:
     TitleScreen();
     virtual bool halts_update() const override;
     virtual bool halts_draw() const override;
-    virtual void update() override;
+    virtual void update(Engine& engine) override;
     virtual void draw(sf::RenderWindow& window) const override;
 };
 

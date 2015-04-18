@@ -12,11 +12,11 @@ void GameStateStack::pop() {
     states.pop_back();
 }
 
-void GameStateStack::update() {
+void GameStateStack::update(Engine& engine) {
     for (auto iter = states.rbegin(), eiter = states.rend(); iter != eiter; ++iter) {
         auto& state = *iter;
         bool halts = state->halts_update();
-        state->update();
+        state->update(engine);
         if (halts) {
             return;
         }

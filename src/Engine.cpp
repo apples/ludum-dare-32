@@ -9,11 +9,13 @@
 Engine::Engine() {
     window.create(sf::VideoMode(800,600),"Toy Box Escape");
     window.setVerticalSyncEnabled(true);
+    window.setKeyRepeatEnabled(false);
 }
 
 void Engine::go() {
-    states.push(TitleScreen{});
+    states.push(std::make_shared<TitleScreen>());
     while (window.isOpen()) {
+        ++current_tick;
         poll_events();
         update();
         draw();
@@ -24,26 +26,43 @@ void Engine::poll_events() {
     sf::Event event;
     while (window.pollEvent(event)) {
         switch (event.type) {
-            case sf::Event::Closed: {
+            case sf::Event::Closed:
                 window.close();
-            }
                 break;
-            case sf::Event::KeyPressed: {
-                if (event.key.code == sf::Keyboard::Escape) {
-                    window.close();
-                }
-            }
+            case sf::Event::KeyPressed:
+                keyboard[event.key.code].last_pressed = current_tick;
+                ECHO("Key pressed:", event.key.code);
+                break;
+            case sf::Event::KeyReleased:
+                keyboard[event.key.code].last_released = current_tick;
+                ECHO("Key released:", event.key.code);
                 break;
         }
     }
 }
 
 void Engine::update() {
-    states.update();
+    states.update(*this);
 }
 
 void Engine::draw() {
     window.clear();
     states.draw(window);
     window.display();
+}
+
+bool Engine::isKeyDown(sf::Keyboard::Key key) const {
+    return keyboard[key].last_pressed > keyboard[key].last_released;
+}
+
+bool Engine::isKeyUp(sf::Keyboard::Key key) const {
+    return !isKeyUp(key);
+}
+
+bool Engine::wasKeyPressed(sf::Keyboard::Key key) const {
+    return keyboard[key].last_pressed == current_tick;
+}
+
+bool Engine::wasKeyReleased(sf::Keyboard::Key key) const {
+    return keyboard[key].last_released == current_tick;
 }

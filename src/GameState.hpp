@@ -7,11 +7,13 @@
 
 #include <SFML/Graphics.hpp>
 
+class Engine;
+
 class GameState {
 public:
     virtual bool halts_update() const { return false; };
     virtual bool halts_draw() const { return false; };
-    virtual void update() { };
+    virtual void update(Engine& engine) { };
     virtual void draw(sf::RenderWindow &window) const { };
     virtual ~GameState() = 0;
 };

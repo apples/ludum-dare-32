@@ -11,16 +11,16 @@
 #include <memory>
 #include <utility>
 
+class Engine;
+
 class GameStateStack : public GameState {
     std::vector<std::shared_ptr<GameState>> states;
 public:
     void push(std::shared_ptr<GameState> ptr);
     void pop();
-    void update() override;
+    void update(Engine& engine) override;
     void draw(sf::RenderWindow &window) const override;
 
-    template<typename T>
-    void push(T &&t) { return push(std::make_shared<T>(std::forward<T>(t))); }
     template<typename T>
     void push(std::shared_ptr<T> ptr) { return push(std::static_pointer_cast<GameState>(std::move(ptr))); }
 };

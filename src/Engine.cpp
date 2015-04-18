@@ -5,6 +5,7 @@
 #include "Engine.hpp"
 
 #include "TitleScreen.hpp"
+#include "MainGame.hpp"
 
 Engine::Engine() {
     window.create(sf::VideoMode(800,600),"Toy Box Escape");
@@ -13,7 +14,7 @@ Engine::Engine() {
 }
 
 void Engine::go() {
-    states.push(std::make_shared<TitleScreen>());
+    states.push(std::make_shared<MainGame>());
     clock.restart();
     while (window.isOpen() && !states.empty()) {
         ++current_tick;

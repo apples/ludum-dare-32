@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.0)
 project(LudumDare32)
 
 find_package(SFML 2 REQUIRED window graphics system)
+find_package(jsoncpp REQUIRED)
 add_subdirectory(ginseng)
 
 file(GLOB_RECURSE sources src/*)
@@ -10,4 +11,5 @@ set_property(TARGET game PROPERTY CXX_STANDARD 14)
 target_include_directories(game PRIVATE src/)
 target_include_directories(game PRIVATE ${SFML_INCLUDE_DIRS})
 target_link_libraries(game ${SFML_LIBRARIES})
+target_link_libraries(game jsoncpp_lib_static)
 target_link_libraries(game ginseng)

@@ -30,7 +30,7 @@ int main()
     db.makeComponent(player2, Velocity{});
     db.makeComponent(player2, Image{PlayerPainter{}});
     db.makeComponent(player2, AI{PlayerBrain{
-            []{return sf::Keyboard::isKeyPressed(sf::Keyboard::Up);},
+            []{return sf::Keyboard::isKeyPressed(sf::Keyboard::P);},
             []{return sf::Keyboard::isKeyPressed(sf::Keyboard::Down);}
     }});
 

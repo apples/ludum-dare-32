@@ -9,6 +9,7 @@
 
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/System.hpp>
 #include <vector>
 
 #ifndef NDEBUG
@@ -35,6 +36,8 @@ class Engine {
 
     GameStateStack states;
     sf::RenderWindow window;
+
+    sf::Clock clock;
 
     int current_tick = 0;
     std::vector<KeyState> keyboard = std::vector<KeyState>(sf::Keyboard::KeyCount);

@@ -23,7 +23,7 @@ bool TitleScreen::halts_draw() const {
     return true;
 }
 
-void TitleScreen::update(Engine& engine) {
+void TitleScreen::update(Engine& engine, double time_step) {
     if (engine.isKeyDown(sf::Keyboard::S)) {
         text.setColor(sf::Color::Red);
     } else {

@@ -18,7 +18,7 @@ class GameStateStack : public GameState {
 public:
     void push(std::shared_ptr<GameState> ptr);
     void pop();
-    void update(Engine& engine) override;
+    void update(Engine& engine, double time_step) override;
     void draw(sf::RenderWindow &window) const override;
 
     template<typename T>

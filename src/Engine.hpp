@@ -34,7 +34,7 @@ class Engine {
         int last_released = -1;
     };
 
-    GameStateStack states;
+
     sf::RenderWindow window;
 
     sf::Clock clock;
@@ -54,6 +54,8 @@ public:
     bool isKeyUp(sf::Keyboard::Key key) const;
     bool wasKeyPressed(sf::Keyboard::Key key) const;
     bool wasKeyReleased(sf::Keyboard::Key key) const;
+
+    GameStateStack states;
 };
 
 

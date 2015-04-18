@@ -23,6 +23,8 @@ public:
 
     template<typename T>
     void push(std::shared_ptr<T> ptr) { return push(std::static_pointer_cast<GameState>(std::move(ptr))); }
+
+    bool empty() { return states.empty(); }
 };
 
 

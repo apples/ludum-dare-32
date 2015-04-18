@@ -2,6 +2,7 @@
 #define LUDUMDARE32_COMPONENTS_HPP
 
 #include <SFML/System.hpp>
+#include <SFML/Graphics/Sprite.hpp>
 
 namespace components {
 
@@ -18,7 +19,13 @@ struct Player {
     float xpos;
 };
 
-struct Ball {};
+struct Sprite {
+    sf::Sprite spr;
+};
+
+struct BoundingBox {
+    sf::FloatRect rect;
+};
 
 } // namespace components
 

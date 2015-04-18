@@ -6,11 +6,15 @@
 #define LUDUMDARE32_GRAPHICSSANDBOX_H
 
 #include "GameState.hpp"
+#include "entcom.hpp"
 
 #include <SFML/Graphics.hpp>
 
 
 class GraphicsSandbox : public GameState {
+    sf::Texture tileTex;
+    DB mutable db;
+
 public:
     GraphicsSandbox();
     virtual bool halts_update() const override;

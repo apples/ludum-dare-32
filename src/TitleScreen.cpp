@@ -4,6 +4,7 @@
 
 #include "TitleScreen.hpp"
 #include "Engine.hpp"
+#include "MainGame.hpp"
 #include "GraphicsSandbox.hpp"
 
 TitleScreen::TitleScreen() {
@@ -15,6 +16,7 @@ TitleScreen::TitleScreen() {
     text.setString("Title Screen");
     text.setOrigin(text.getLocalBounds().width/2.f, text.getLocalBounds().height/2.f);
 
+    items.emplace_back(std::make_pair("Main Game", std::make_shared<MainGame>()));
     items.emplace_back(std::make_pair("Graphics Sandbox", std::make_shared<GraphicsSandbox>()));
 
     selected = 0;
@@ -29,7 +31,7 @@ bool TitleScreen::halts_draw() const {
 }
 
 void TitleScreen::update(Engine& engine, double time_step) {
-    if (engine.isKeyDown(sf::Keyboard::Escape)) {
+    if (engine.wasKeyPressed(sf::Keyboard::Escape)) {
         engine.states.pop();
     }
 
@@ -81,7 +83,8 @@ void TitleScreen::draw(sf::RenderWindow& window) const {
     for (int i = 0; i < items.size(); i++) {
         text.setString(items[i].first);
         text.setOrigin(text.getLocalBounds().width/2.f, 0);
-        text.setPosition(window.getSize().x / 2.f, 100 + text.getLocalBounds().height * 2 * (i + 1));
+        //text.setPosition(window.getSize().x / 2.f, 100 + text.getLocalBounds().height * 2 * (i + 1));
+        text.setPosition(window.getSize().x / 2.f, 100 + text.getFont()->getLineSpacing(text.getCharacterSize()) * (i + 1));
 
         if (i == selected)
             text.setColor(sf::Color::Yellow);

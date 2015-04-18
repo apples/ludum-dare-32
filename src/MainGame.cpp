@@ -4,6 +4,7 @@
 
 #include "MainGame.hpp"
 #include "components.hpp"
+#include "Engine.hpp"
 
 #include <json/json.h>
 
@@ -55,6 +56,9 @@ bool MainGame::halts_draw() const {
 }
 
 void MainGame::update(Engine &engine, double time_step) {
+    if (engine.wasKeyPressed(sf::Keyboard::Escape)) {
+        engine.states.pop();
+    }
 }
 
 void MainGame::draw(sf::RenderWindow &window) const {

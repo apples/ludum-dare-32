@@ -14,7 +14,7 @@ Engine::Engine() {
 }
 
 void Engine::go() {
-    states.push(std::make_shared<MainGame>());
+    states.push(std::make_shared<TitleScreen>());
     clock.restart();
     while (window.isOpen() && !states.empty()) {
         ++current_tick;

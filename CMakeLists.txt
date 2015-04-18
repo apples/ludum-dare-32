@@ -6,7 +6,7 @@ add_subdirectory(ginseng)
 
 file(GLOB_RECURSE sources src/*)
 add_executable(game ${sources})
-set_property(TARGET game PROPERTY CXX_STANDARD 11)
+set_property(TARGET game PROPERTY CXX_STANDARD 14)
 target_include_directories(game PRIVATE src/)
 target_include_directories(game PRIVATE ${SFML_INCLUDE_DIRS})
 target_link_libraries(game ${SFML_LIBRARIES})

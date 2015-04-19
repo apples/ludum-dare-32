@@ -30,7 +30,7 @@ TitleScreen::TitleScreen() {
 
     items.emplace_back(std::make_pair("Main Game", maker<MainGame>()));
     items.emplace_back(std::make_pair("Level Editor", maker<LevelEditor>()));
-    //items.emplace_back(std::make_pair("Graphics Sandbox", maker<GraphicsSandbox>()));
+    items.emplace_back(std::make_pair("Graphics Sandbox", maker<GraphicsSandbox>()));
 
     selected = 0;
 }
@@ -72,10 +72,9 @@ void TitleScreen::update(Engine& engine, double time_step) {
         {
             text.setString(items[i].first);
             text.setOrigin(text.getLocalBounds().width/2.f, 0);
-            text.setPosition(engine.window.getSize().x/2, 100 + text.getLocalBounds().height * 2 * (i + 1));
+            text.setPosition(engine.window.getSize().x/2, 100 + text.getFont()->getLineSpacing(text.getCharacterSize()) * (i + 1));
             sf::FloatRect boundingBox;
             boundingBox = text.getGlobalBounds();
-            ECHO(boundingBox.left, boundingBox.top, boundingBox.width, boundingBox.height);
             if (boundingBox.contains(engine.getMousePosition().x, engine.getMousePosition().y))
             {
                 selected = i;
@@ -96,7 +95,6 @@ void TitleScreen::draw(sf::RenderWindow& window) const {
     for (int i = 0; i < items.size(); i++) {
         text.setString(items[i].first);
         text.setOrigin(text.getLocalBounds().width/2.f, 0);
-        //text.setPosition(window.getSize().x / 2.f, 100 + text.getLocalBounds().height * 2 * (i + 1));
         text.setPosition(window.getSize().x / 2.f, 100 + text.getFont()->getLineSpacing(text.getCharacterSize()) * (i + 1));
 
         if (i == selected)

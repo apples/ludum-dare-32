@@ -7,6 +7,7 @@
 
 #include "GameState.hpp"
 #include "entcom.hpp"
+#include "Camera.hpp"
 
 #include <SFML/Graphics.hpp>
 
@@ -14,6 +15,7 @@
 class GraphicsSandbox : public GameState {
     sf::Texture tileTex;
     DB mutable db;
+    Camera cam;
 
 public:
     GraphicsSandbox();

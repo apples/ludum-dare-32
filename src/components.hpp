@@ -21,6 +21,7 @@ struct Player {
 
 struct Sprite {
     sf::Sprite spr;
+    int layer;
 };
 
 struct BoundingBox {

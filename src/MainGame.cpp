@@ -20,10 +20,20 @@ MainGame::MainGame() {
     load_level("data/sandy.json");
 }
 
+MainGame::MainGame(Json::Value json) {
+    load(json);
+}
+
 void MainGame::load_level(std::string fname) {
     Json::Value json;
     std::ifstream file (fname.c_str());
     file >> json;
+
+    load(json);
+}
+
+void MainGame::load(Json::Value json) {
+    entities = DB{};
 
     TempSprite sprites[] = {
             {{255,0,0}},

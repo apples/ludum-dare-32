@@ -8,13 +8,17 @@
 #include "GameState.hpp"
 #include "entcom.hpp"
 
+#include <json/json.h>
+
 #include <string>
 
 class MainGame : public GameState {
     mutable DB entities;
 public:
     MainGame();
+    MainGame(Json::Value json);
     void load_level(std::string fname);
+    void load(Json::Value json);
 
     virtual bool halts_update() const override;
     virtual bool halts_draw() const override;

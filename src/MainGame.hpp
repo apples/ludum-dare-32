@@ -7,6 +7,8 @@
 
 #include "GameState.hpp"
 #include "entcom.hpp"
+#include "TextureCache.hpp"
+#include "Camera.hpp"
 
 #include <json/json.h>
 
@@ -14,6 +16,8 @@
 
 class MainGame : public GameState {
     mutable DB entities;
+    TextureCache texcache = TextureCache("data/textures.json");
+    Camera cam;
 public:
     MainGame();
     MainGame(Json::Value json);

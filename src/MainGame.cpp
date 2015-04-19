@@ -10,18 +10,18 @@
 
 #include <fstream>
 
-using components::Position;
-
-struct TempSprite {
-    sf::Color color;
-};
+using components::BoundingBox;
+using components::Sprite;
+using components::Solid;
 
 MainGame::MainGame() {
     load_level("data/sandy.json");
+    cam.setSize(800,600);
 }
 
 MainGame::MainGame(Json::Value json) {
     load(json);
+    cam.setSize(800,600);
 }
 
 void MainGame::load_level(std::string fname) {
@@ -35,25 +35,32 @@ void MainGame::load_level(std::string fname) {
 void MainGame::load(Json::Value json) {
     entities = DB{};
 
-    TempSprite sprites[] = {
-            {{255,0,0}},
-            {{0,255,0}},
-            {{0,0,255}},
-    };
+    auto& tex = texcache.get("terrain");
+    auto sprW = tex.getSize().x/16.0;
+    auto sprH = tex.getSize().y/16.0;
+    std::vector<Sprite> terrasprites;
+    terrasprites.reserve(256);
+    for (int i=0; i<256; ++i) {
+        Sprite sprite {{tex,sf::IntRect((i%16)*sprW,(i/16)*sprH,sprW,sprH)}, 0};
+        terrasprites.push_back(sprite);
+    }
 
     auto width = json["width"].asInt();
     auto height = json["height"].asInt();
 
-    float y = 8;
+    auto y = sprH/2.0;
     for (auto& row : json["rows"]) {
-        float x = 8;
+        auto x = sprW/2.0;
         for (auto& tile : row) {
+            BoundingBox bb {{x,y,sprW,sprH}};
+            Sprite spr = terrasprites[tile.asInt()];
             auto ent = entities.makeEntity();
-            entities.makeComponent(ent, Position{{x,y}});
-            entities.makeComponent(ent, sprites[tile.asInt()]);
-            x += 16;
+            entities.makeComponent(ent, bb);
+            entities.makeComponent(ent, spr);
+            entities.makeComponent(ent, Solid{});
+            x += sprW;
         }
-        y += 16;
+        y += sprH;
     }
 }
 
@@ -72,13 +79,5 @@ void MainGame::update(Engine &engine, double time_step) {
 }
 
 void MainGame::draw(sf::RenderWindow &window) const {
-    using std::get;
-    sf::RectangleShape rect;
-    rect.setSize(sf::Vector2f(16,16));
-    rect.setOrigin(8,8);
-    for (auto ent : entities.query<Position,TempSprite>()) {
-        rect.setPosition(get<1>(ent).data().pos);
-        rect.setFillColor(get<2>(ent).data().color);
-        window.draw(rect);
-    }
+    cam.draw(window, entities);
 }

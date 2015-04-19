@@ -29,7 +29,7 @@ struct BoundingBox {
 };
 
 struct Solid {
-}
+};
 
 } // namespace components
 

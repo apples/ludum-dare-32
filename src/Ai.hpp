@@ -5,9 +5,11 @@
 #ifndef LUDUMDARE32_AICOMPONENT_HPP
 #define LUDUMDARE32_AICOMPONENT_HPP
 
-#include <functional>
-#include <iostream>
 #include "entcom.hpp"
+#include <functional>
+#include <string>
+
+void update_ais(DB& db);
 
 struct AIComponent {
     template <class T> AIComponent(T inputAi) { brain = inputAi; }
@@ -17,17 +19,18 @@ struct AIComponent {
 
 };
 
-struct StateComponent {
+struct AiStateComponent {
     double vx;
     double vy;
 
-    string anim;
+    std::string anim;
     bool flipped;
 };
 
+#if 0
 struct GoombaAI {
     void operator()(EntID me, AIComponent &myAi) {
-        StateComponent curState;
+        AiStateComponent curState;
         
         if (isFalling())
             curState = falling;
@@ -45,10 +48,10 @@ struct GoombaAI {
         db.makeComponent(me, curState);
     }
 
-    StateComponent walking;
-    StateComponent falling;
+    AiStateComponent walking;
+    AiStateComponent falling;
 
-    GoombaAI::GoombaAI() {
+    GoombaAI() {
         walking.vx = 1;
         walking.vy = 0;
         walking.anim = "walking";
@@ -60,5 +63,6 @@ struct GoombaAI {
         falling.flipped = 0;
     } // end constructor
 };
+#endif
 
 #endif // LUDUMDARE32_AICOMPONENT_HPP

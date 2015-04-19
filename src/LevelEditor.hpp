@@ -26,6 +26,7 @@ public:
 class LevelEditor : public GameState {
     Json::Value json;
     TextureCache textures = TextureCache("data/textures.json");
+    sf::Font font;
 
     std::shared_ptr<LevelEditorSave> saver;
 public:

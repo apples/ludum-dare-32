@@ -8,6 +8,7 @@
 #include "Engine.hpp"
 
 #include <fstream>
+#include <string>
 
 LevelEditorSave::LevelEditorSave() {
     font.loadFromFile("data/OFLGoudyStM.otf");
@@ -52,6 +53,7 @@ void LevelEditorSave::draw(sf::RenderWindow &window) const {
 
 
 LevelEditor::LevelEditor() {
+    font.loadFromFile("data/OFLGoudyStM.otf");
     json["width"] = 10;
     json["height"] = 10;
     json["rows"].resize(json["height"].asInt());
@@ -106,6 +108,22 @@ void LevelEditor::update(Engine &engine, double time_step) {
         json["rows"].append(a_row);
     }
 
+    if (engine.wasKeyPressed(sf::Keyboard::Add)) {
+        ++active_tile;
+    }
+
+    if (engine.wasKeyPressed(sf::Keyboard::Subtract)) {
+        --active_tile;
+    }
+
+    if (active_tile < 0) {
+        active_tile = 0;
+    }
+
+    if (active_tile > 255) {
+        active_tile = 255;
+    }
+
     if (engine.wasKeyPressed(sf::Keyboard::F2)) {
         saver = std::make_shared<LevelEditorSave>();
         engine.states.push(saver);
@@ -119,18 +137,28 @@ void LevelEditor::update(Engine &engine, double time_step) {
 void LevelEditor::draw(sf::RenderWindow &window) const {
     sf::Sprite sprite;
     auto& tex = textures.get("terrain");
+    auto tsz = tex.getSize();
+    auto sprW = tsz.x/16;
+    auto sprH = tsz.y/16;
     sprite.setTexture(tex);
     for (auto r = 0; r<json["height"].asInt(); ++r) {
         for (auto c = 0; c<json["width"].asInt(); ++c) {
-            sprite.setPosition(c*16,r*16);
-            auto tsz = tex.getSize();
-            auto sprW = tsz.x/16;
-            auto sprH = tsz.y/16;
             auto val = json["rows"][r][c].asInt();
-            auto quot = val/16;
-            auto rem = val%16;
-            sprite.setTextureRect(sf::IntRect(rem*sprW,quot*sprH,sprW,sprH));
-            window.draw(sprite);
+            if (val > 0) {
+                sprite.setPosition(c * sprW, r * sprH);
+                auto quot = val / 16;
+                auto rem = val % 16;
+                sprite.setTextureRect(sf::IntRect(rem * sprW, quot * sprH, sprW, sprH));
+                window.draw(sprite);
+            }
         }
     }
+    sf::Text text (std::to_string(active_tile), font);
+    sf::RectangleShape rect (sf::Vector2f(text.getGlobalBounds().width,text.getGlobalBounds().height+20));
+    text.setPosition(0,0);
+    text.setColor(sf::Color::White);
+    rect.setPosition(text.getPosition());
+    rect.setFillColor(sf::Color(0,0,0,128));
+    window.draw(rect);
+    window.draw(text);
 }

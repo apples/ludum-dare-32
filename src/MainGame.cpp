@@ -52,12 +52,15 @@ void MainGame::load(Json::Value json) {
     for (auto& row : json["rows"]) {
         auto x = sprW/2.0;
         for (auto& tile : row) {
-            BoundingBox bb {{x,y,sprW,sprH}};
-            Sprite spr = terrasprites[tile.asInt()];
-            auto ent = entities.makeEntity();
-            entities.makeComponent(ent, bb);
-            entities.makeComponent(ent, spr);
-            entities.makeComponent(ent, Solid{});
+            auto t = tile.asInt();
+            if (t>0) {
+                BoundingBox bb{{x, y, sprW, sprH}};
+                Sprite spr = terrasprites[t];
+                auto ent = entities.makeEntity();
+                entities.makeComponent(ent, bb);
+                entities.makeComponent(ent, spr);
+                entities.makeComponent(ent, Solid{});
+            }
             x += sprW;
         }
         y += sprH;

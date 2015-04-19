@@ -54,7 +54,7 @@ void Engine::poll_events() {
             case sf::Event::MouseMoved:
                 mousePosition.x = event.mouseMove.x;
                 mousePosition.y = event.mouseMove.y;
-                ECHO("Mouse moved - x:", event.mouseMove.x, "y:", event.mouseMove.y);
+                //ECHO("Mouse moved - x:", event.mouseMove.x, "y:", event.mouseMove.y);
                 break;
 
         }

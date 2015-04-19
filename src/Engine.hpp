@@ -5,28 +5,13 @@
 #ifndef LUDUMDARE32_ENGINE_HPP
 #define LUDUMDARE32_ENGINE_HPP
 
+#include "echo.hpp"
 #include "GameStateStack.hpp"
 
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/System.hpp>
 #include <vector>
-
-#ifndef NDEBUG
-#include <iostream>
-template <typename Head>
-void ECHO(const Head& head) {
-    std::clog << head << std::endl;
-}
-template <typename Head, typename... Tail>
-void ECHO(const Head& head, const Tail&... tail) {
-    std::clog << head << " ";
-    ECHO(tail...);
-}
-#else
-template <typename... Ts>
-void ECHO(Ts&&...) {}
-#endif
 
 class Engine {
     struct KeyState {

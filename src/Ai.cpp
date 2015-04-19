@@ -4,8 +4,8 @@
 
 #include "Ai.hpp"
 
-void update_ais(DB& db) {
+void update_ais(Engine& engine, DB& db) {
     for (auto ent : db.query<AIComponent>()) {
-        std::get<1>(ent).data().update(std::get<0>(ent));
+        std::get<1>(ent).data().update(engine, std::get<0>(ent));
     }
 }

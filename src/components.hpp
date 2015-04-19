@@ -11,6 +11,7 @@ struct Position {
 };
 
 struct Velocity {
+    sf::Vector2f acc;
     sf::Vector2f vel;
 };
 

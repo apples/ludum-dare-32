@@ -2,9 +2,11 @@
 // Created by Jeramy on 4/18/2015.
 //
 
+#include "Ai.hpp"
 #include "MainGame.hpp"
 #include "components.hpp"
 #include "Engine.hpp"
+#include "PhysicsEngine.hpp"
 
 #include <json/json.h>
 
@@ -13,6 +15,7 @@
 using components::BoundingBox;
 using components::Sprite;
 using components::Solid;
+using components::Velocity;
 
 MainGame::MainGame() {
     load_level("data/sandy.json");
@@ -65,6 +68,29 @@ void MainGame::load(Json::Value json) {
         }
         y += sprH;
     }
+    {
+        Sprite player_sprite{{tex, sf::IntRect(sprW, 0, sprW, sprH)}, 1};
+        BoundingBox player_bb{{64, 64+32, sprW, sprH}};
+        Velocity player_vel{{50, 0}};
+        AIComponent player_ai {[](Engine& engine, EntID me, AIComponent& my_ai){
+            auto& vel = me.get<Velocity>().data();
+            if (engine.isKeyDown(sf::Keyboard::Left)) {
+                vel.acc.x += -2000;
+            }
+            if (engine.isKeyDown(sf::Keyboard::Right)) {
+                vel.acc.x += 2000;
+            }
+            if (engine.wasKeyPressed(sf::Keyboard::Up)) {
+                vel.acc.y -= 30000;
+            }
+        }};
+
+        auto player = entities.makeEntity();
+        entities.makeComponent(player, player_sprite);
+        entities.makeComponent(player, player_bb);
+        entities.makeComponent(player, player_vel);
+        entities.makeComponent(player, player_ai);
+    }
 }
 
 bool MainGame::halts_update() const {
@@ -76,6 +102,9 @@ bool MainGame::halts_draw() const {
 }
 
 void MainGame::update(Engine &engine, double time_step) {
+    update_ais(engine, entities);
+    physics_step(entities, time_step);
+
     if (engine.wasKeyPressed(sf::Keyboard::Escape)) {
         engine.states.pop();
     }

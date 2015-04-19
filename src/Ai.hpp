@@ -9,13 +9,15 @@
 #include <functional>
 #include <string>
 
-void update_ais(DB& db);
+class Engine;
+
+void update_ais(Engine& engine, DB& db);
 
 struct AIComponent {
     template <class T> AIComponent(T inputAi) { brain = inputAi; }
-    std::function<void(EntID, AIComponent &)> brain;
+    std::function<void(Engine&, EntID, AIComponent &)> brain;
 
-    void update(EntID id) { brain(id, *this); }
+    void update(Engine& engine, EntID id) { brain(engine, id, *this); }
 
 };
 

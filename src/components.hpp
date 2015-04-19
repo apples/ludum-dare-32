@@ -27,6 +27,9 @@ struct BoundingBox {
     sf::FloatRect rect;
 };
 
+struct Solid {
+}
+
 } // namespace components
 
 #include "components/ai.hpp"

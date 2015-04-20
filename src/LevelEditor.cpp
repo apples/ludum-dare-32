@@ -10,7 +10,7 @@
 #include <fstream>
 #include <string>
 
-LevelEditorSave::LevelEditorSave() {
+LevelEditorSave::LevelEditorSave(std::string prompt) : prompt(prompt) {
     font.loadFromFile("data/OFLGoudyStM.otf");
 }
 
@@ -24,6 +24,7 @@ bool LevelEditorSave::halts_draw() const {
 
 void LevelEditorSave::update(Engine &engine, double time_step) {
     if (engine.wasKeyPressed(sf::Keyboard::Escape)) {
+        fname = "";
         engine.states.pop();
     }
 
@@ -43,7 +44,7 @@ void LevelEditorSave::update(Engine &engine, double time_step) {
 }
 
 void LevelEditorSave::draw(sf::RenderWindow &window) const {
-    sf::Text text (fname, font);
+    sf::Text text (prompt+": [ "+fname+" ]", font);
     auto tb = text.getLocalBounds();
     text.setOrigin(tb.width/2.0, tb.height/2.0);
     auto ws = window.getSize();
@@ -76,8 +77,20 @@ bool LevelEditor::halts_draw() const {
 
 void LevelEditor::update(Engine &engine, double time_step) {
     if (saver) {
-        std::ofstream file ("data/"+saver->fname+".json");
-        file << json;
+        if (!saver->fname.empty()) {
+            std::ofstream file("data/" + saver->fname + ".json");
+            file << json;
+            fname = saver->fname;
+        }
+        saver = {};
+    }
+    if (loader) {
+        if (!loader->fname.empty()) {
+            std::ifstream file("data/" + loader->fname + ".json");
+            file >> json;
+            fname = loader->fname;
+        }
+        loader = {};
     }
 
     if (engine.wasMouseButtonPressed(sf::Mouse::Left)) {
@@ -125,8 +138,15 @@ void LevelEditor::update(Engine &engine, double time_step) {
     }
 
     if (engine.wasKeyPressed(sf::Keyboard::F2)) {
-        saver = std::make_shared<LevelEditorSave>();
+        saver = std::make_shared<LevelEditorSave>("SAVE");
+        saver->fname = fname;
         engine.states.push(saver);
+    }
+
+    if (engine.wasKeyPressed(sf::Keyboard::F3)) {
+        loader = std::make_shared<LevelEditorSave>("LOAD");
+        loader->fname = fname;
+        engine.states.push(loader);
     }
 
     if (engine.wasKeyPressed(sf::Keyboard::Escape)) {

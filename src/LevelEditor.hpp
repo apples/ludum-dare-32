@@ -14,9 +14,10 @@
 
 class LevelEditorSave : public GameState {
     sf::Font font;
+    std::string prompt;
 public:
     std::string fname = "";
-    LevelEditorSave();
+    LevelEditorSave(std::string prompt);
     virtual bool halts_update() const override;
     virtual bool halts_draw() const override;
     virtual void update(Engine &engine, double time_step) override;
@@ -29,6 +30,9 @@ class LevelEditor : public GameState {
     sf::Font font;
 
     std::shared_ptr<LevelEditorSave> saver;
+    std::shared_ptr<LevelEditorSave> loader;
+
+    std::string fname = "";
 public:
     LevelEditor();
 

@@ -2,7 +2,8 @@
 #define LUDUMDARE32_COMPONENTS_HPP
 
 #include <SFML/System.hpp>
-#include <SFML/Graphics/Sprite.hpp>
+#include <SFML/Graphics.hpp>
+#include "Animation.hpp"
 
 namespace components {
 
@@ -20,8 +21,11 @@ struct Player {
 };
 
 struct Sprite {
-    sf::Sprite spr;
-    int layer;
+    Animation spr;
+    int layer = 0;
+
+    Sprite() = default;
+    Sprite(sf::Sprite s) {spr = Animation(s);}
 };
 
 struct BoundingBox {

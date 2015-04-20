@@ -5,6 +5,7 @@
 #include "GraphicsSandbox.hpp"
 #include "components.hpp"
 #include "Engine.hpp"
+#include "Animation.hpp"
 using namespace components;
 
 GraphicsSandbox::GraphicsSandbox() {
@@ -20,12 +21,23 @@ GraphicsSandbox::GraphicsSandbox() {
             sf::Vector2f pos = sf::Vector2f(i * tileSize.x, j * tileSize.y);
             sf::Sprite spr(tileTex);
             spr.setPosition(pos);
+            spr.setTextureRect(sf::IntRect(sf::Vector2i(16, 16), sf::Vector2i(16, 16)));
             db.makeComponent(eid, Sprite{spr});
             db.makeComponent(eid, BoundingBox{sf::FloatRect{pos, tileSize}});
         }
     }
 
     cam.setMoveableArea(sf::FloatRect(sf::Vector2f(0, 0), tileSize * 50.f));
+
+    if (!playerTex.loadFromFile("data/girl.png")) {
+        throw std::runtime_error("Failed to load data/girl.png");
+    }
+
+    Animation playerAnim("data/player.json", playerTex);
+    playerAnim.setState("walk");
+    EntID eid = db.makeEntity();
+    db.makeComponent(eid, Sprite{playerAnim});
+    db.makeComponent(eid, BoundingBox{sf::FloatRect{sf::Vector2f(0, 0), sf::Vector2f(32, 64)}});
 }
 
 bool GraphicsSandbox::halts_update() const {
@@ -39,6 +51,7 @@ bool GraphicsSandbox::halts_draw() const {
 void GraphicsSandbox::update(Engine &engine, double time_step) {
     if (engine.wasKeyPressed(sf::Keyboard::Escape)) {
         engine.states.pop();
+        return;
     }
 
     if (cam.getSize() == sf::Vector2f(0, 0)) {
@@ -61,6 +74,11 @@ void GraphicsSandbox::update(Engine &engine, double time_step) {
     }
 
     cam.move(delta * 10.f);
+
+    auto items = db.query<Sprite>();
+    for (auto& ent : items) {
+        std::get<1>(ent).data().spr.update(engine, time_step);
+    }
 }
 
 void GraphicsSandbox::draw(sf::RenderWindow &window) const {

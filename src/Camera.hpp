@@ -67,7 +67,7 @@ public:
         for (auto& ent : items) {
             sf::FloatRect sprRect(std::get<2>(ent).data().rect);
             if (rect.intersects(sprRect)) {
-                sf::Sprite spr(std::get<1>(ent).data().spr);
+                Animation spr(std::get<1>(ent).data().spr);
                 spr.setPosition(-getPosition() + sf::Vector2f(sprRect.left, sprRect.top));
                 window.draw(spr);
             }

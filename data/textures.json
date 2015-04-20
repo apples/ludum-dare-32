@@ -1,3 +1,4 @@
 {
-  "terrain": "terrain.png"
+  "terrain": "terrain.png",
+  "player": "girl.png"
 }

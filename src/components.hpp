@@ -25,7 +25,8 @@ struct Player {
 
 struct Sprite {
     AnimatedSprite spr;
-    int layer;
+    int layer = 0;
+    bool flipped = false;
 
     Sprite() = default;
     Sprite(sf::Sprite sspr) {

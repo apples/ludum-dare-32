@@ -84,7 +84,7 @@ struct BearAI {
         maxVel = 2000;
     };
 
-    void operator()(Engine& engine, EntID me, AIComponent& myAi) {
+    void operator()(Engine& engine, DB& db, EntID me, AIComponent& myAi) {
         auto& vel = me.get<Velocity>().data();
         auto colinfo = me.get<CollisionData>();
         std::unique_ptr<EntID> target;
@@ -157,7 +157,7 @@ struct GoombaAI {
         maxVel = 2000;
     } // end constructor
 
-    void operator()(Engine& engine, EntID me, AIComponent& myAi) {
+    void operator()(Engine& engine, DB& db, EntID me, AIComponent& myAi) {
         auto& vel = me.get<Velocity>().data();
         auto colinfo = me.get<CollisionData>();
         hitLeftRight = false;

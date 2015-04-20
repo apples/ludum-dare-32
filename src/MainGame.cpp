@@ -47,7 +47,7 @@ void MainGame::load(Json::Value json) {
         file >> tjson;
         for (auto& tdatum : tjson) {
             auto id = tdatum["id"].asInt();
-            auto is_solid = tdatum.get("solid",false).asBool();
+            auto is_solid = tdatum.get("solid", false).asBool();
             terrain_data[id].is_solid = is_solid;
         }
     }
@@ -60,7 +60,8 @@ void MainGame::load(Json::Value json) {
     std::vector<Sprite> terrasprites;
     terrasprites.reserve(256);
     for (int i = 0; i < 256; ++i) {
-        Sprite sprite{tex, sf::IntRect((i % 16) * sprW, (i / 16) * sprH, sprW, sprH), terrain_data[i].is_solid?1:-1};
+        Sprite sprite{tex, sf::IntRect((i % 16) * sprW, (i / 16) * sprH, sprW, sprH),
+                      terrain_data[i].is_solid ? 1 : -1};
         terrasprites.push_back(sprite);
     }
 
@@ -88,7 +89,7 @@ void MainGame::load(Json::Value json) {
         }
         y += sprH;
     }
-     {
+    {
         Sprite player_sprite;
         animations = loadAnimation("player.json", texcache);
         player_sprite.spr.setAnimation(animations.at("walk"));
@@ -97,19 +98,20 @@ void MainGame::load(Json::Value json) {
         player_sprite.spr.update(sf::seconds(1));
         player_sprite.layer = 0;
 
-        BoundingBox player_bb{{json["player_spawn"]["col"].asInt()*sprW, json["player_spawn"]["col"].asInt()*sprH, sprW, sprH*2}};
+        BoundingBox player_bb{{json["player_spawn"]["col"].asInt() * sprW,
+                                      json["player_spawn"]["col"].asInt() * sprH, sprW, sprH * 2}};
         Velocity player_vel{};
-        AIComponent player_ai{AIComponent{PlayerAI{[=](EntID peid){
+        AIComponent player_ai{AIComponent{PlayerAI{[=](EntID peid) {
             auto pbb = peid.get<BoundingBox>().data().rect;
             Sprite bear_sprite;
-            animations = loadAnimation("player.json", texcache);
-            bear_sprite.spr.setAnimation(animations.at("walk"));
+            auto bearanims = loadAnimation("player.json", texcache);
+            bear_sprite.spr.setAnimation(bearanims.at("walk"));
             bear_sprite.spr.setFrameTime(sf::seconds(0.25f));
             bear_sprite.spr.setLooped(true);
             bear_sprite.spr.update(sf::seconds(1));
             bear_sprite.layer = 1;
 
-            BoundingBox bear_bb{{pbb.left+sprW, pbb.top, sprW, sprH}};
+            BoundingBox bear_bb{{pbb.left + sprW, pbb.top, sprW, sprH}};
             Velocity bear_vel{};
 
             auto bear = entities.makeEntity();
@@ -124,21 +126,6 @@ void MainGame::load(Json::Value json) {
         entities.makeComponent(player, player_bb);
         entities.makeComponent(player, player_vel);
         entities.makeComponent(player, player_ai);
-    }
-
-   {
-        Sprite bear_sprite = terrasprites[33];
-
-        BoundingBox bear_bb{{300, 40, sprW, sprH}};
-        Velocity bear_vel{{50, 0}};
-        BearAI bearBrain(&entities);
-        AIComponent bear_ai(bearBrain);
-
-        EntID bear = entities.makeEntity();
-        entities.makeComponent(bear, bear_sprite);
-        entities.makeComponent(bear, bear_bb);
-        entities.makeComponent(bear, bear_vel);
-        entities.makeComponent(bear, bear_ai);
     }
     {
         Sprite goomba_sprite = terrasprites[17];
@@ -155,7 +142,6 @@ void MainGame::load(Json::Value json) {
         entities.makeComponent(goomba, goomba_ai);
         entities.makeComponent(goomba, Enemy{});
     }
-
 }
 
 bool MainGame::halts_update() const {

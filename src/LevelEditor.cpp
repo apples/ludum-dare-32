@@ -30,7 +30,7 @@ void LevelEditorSave::update(Engine &engine, double time_step) {
     }
 
     for (auto event : engine.getKeyBuffer()) {
-        if (event.code == sf::Keyboard::BackSpace) {
+        if (event.code == sf::Keyboard::BackSpace && !fname.empty()) {
             fname.pop_back();
         } else if (event.code >= sf::Keyboard::A && event.code <= sf::Keyboard::Z) {
             char c = (event.shift ? 'A' : 'a');

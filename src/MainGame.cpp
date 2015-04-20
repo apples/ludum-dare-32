@@ -45,7 +45,7 @@ void MainGame::load(Json::Value json) {
     std::vector<Sprite> terrasprites;
     terrasprites.reserve(256);
     for (int i=0; i<256; ++i) {
-        Sprite sprite {{tex,sf::IntRect((i%16)*sprW,(i/16)*sprH,sprW,sprH)}, 0};
+        Sprite sprite {tex,sf::IntRect((i%16)*sprW,(i/16)*sprH,sprW,sprH), 0};
         terrasprites.push_back(sprite);
     }
 
@@ -70,7 +70,7 @@ void MainGame::load(Json::Value json) {
         y += sprH;
     }
     {
-        Sprite player_sprite{{tex, sf::IntRect(sprW, 0, sprW, sprH)}, 1};
+        Sprite player_sprite{tex, sf::IntRect(sprW, 0, sprW, sprH), 1};
         BoundingBox player_bb{{64, 64+32, sprW, sprH}};
         Velocity player_vel{{50, 0}};
         AIComponent player_ai {[](Engine& engine, EntID me, AIComponent& my_ai){

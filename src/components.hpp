@@ -35,6 +35,13 @@ struct Sprite {
         spr.setAnimation(anim);
     }
     Sprite(sf::Sprite sspr, int lyr) : Sprite(sspr) { layer = lyr; }
+    Sprite(const sf::Texture& tex, sf::IntRect rect, int lyr) {
+        Animation anim;
+        anim.addFrame(rect);
+        anim.setSpriteSheet(tex);
+        spr.setAnimation(anim);
+        layer = lyr;
+    }
 };
 
 struct BoundingBox {

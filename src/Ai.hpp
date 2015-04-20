@@ -29,18 +29,10 @@ struct AIComponent {
 };
 
 struct AiStateComponent {
-    double vx;
-    double vy;
-
-    std::string animation;
+    std::string anim_name;
+    std::string anim_group;
     bool flipped;
 
-    void setAll(double x, double y, std::string anim, bool f) {
-        vx = x;
-        vy = y;
-        animation = anim;
-        flipped = f;
-    } // end setAll
 }; // end AiStateComponent
 
 struct PlayerAI {

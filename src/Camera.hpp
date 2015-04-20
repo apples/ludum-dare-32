@@ -58,8 +58,8 @@ public:
         auto spriteComp = [](const auto& ent1, const auto& ent2) {
             const auto& spr1 = std::get<1>(ent1).data();
             const auto& spr2 = std::get<1>(ent2).data();
-            auto tup1 = std::make_tuple(spr1.layer, spr1.spr.getAnimation()->getSpriteSheet());
-            auto tup2 = std::make_tuple(spr2.layer, spr2.spr.getAnimation()->getSpriteSheet());
+            auto tup1 = std::make_tuple(spr1.layer, spr1.spr.getAnimation().getSpriteSheet());
+            auto tup2 = std::make_tuple(spr2.layer, spr2.spr.getAnimation().getSpriteSheet());
             return tup1 < tup2;
         };
         std::sort(std::begin(items), std::end(items), spriteComp);

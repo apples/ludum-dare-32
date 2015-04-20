@@ -7,6 +7,8 @@
 #include "components.hpp"
 #include "Engine.hpp"
 #include "PhysicsEngine.hpp"
+#include "LoadAnimation.hpp"
+#include "UpdateSprites.hpp"
 
 #include <json/json.h>
 
@@ -70,8 +72,14 @@ void MainGame::load(Json::Value json) {
         y += sprH;
     }
     {
-        Sprite player_sprite{tex, sf::IntRect(sprW, 0, sprW, sprH), 1};
-        BoundingBox player_bb{{64, 64 + 32, sprW, sprH}};
+        Sprite player_sprite;
+        animations = loadAnimation("player.json", texcache);
+        player_sprite.spr.setAnimation(animations.at("walk"));
+        player_sprite.spr.setFrameTime(sf::seconds(0.25f));
+        player_sprite.spr.setLooped(true);
+        player_sprite.spr.update(sf::seconds(1));
+
+        BoundingBox player_bb{{64, 64 + 32, sprW, sprH*2}};
         Velocity player_vel{{50, 0}};
         AIComponent player_ai{[](Engine& engine, EntID me, AIComponent& my_ai) {
             auto& vel = me.get<Velocity>().data();
@@ -105,6 +113,7 @@ bool MainGame::halts_draw() const {
 void MainGame::update(Engine& engine, double time_step) {
     update_ais(engine, entities);
     physics_step(entities, time_step);
+    update_sprites(entities, time_step);
 
     {
         auto& playerbb = player.get<BoundingBox>().data().rect;
@@ -112,7 +121,7 @@ void MainGame::update(Engine& engine, double time_step) {
     }
 
     if (engine.wasKeyPressed(sf::Keyboard::Escape)) {
-        engine.states.pop();
+        return engine.states.pop();
     }
 }
 

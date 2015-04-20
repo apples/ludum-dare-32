@@ -1,4 +1,6 @@
 ////////////////////////////////////////////////////////////
+// Modified by Jeramy Harrison 2015-04-20.
+////////////////////////////////////////////////////////////
 //
 // Copyright (C) 2014 Maximilian Wagenbach (aka. Foaly) (foaly.f@web.de)
 //
@@ -24,15 +26,15 @@
 #include "AnimatedSprite.hpp"
 
 AnimatedSprite::AnimatedSprite(sf::Time frameTime, bool paused, bool looped) :
-        m_animation(NULL), m_frameTime(frameTime), m_currentFrame(0), m_isPaused(paused), m_isLooped(looped), m_texture(NULL)
+        m_animation(), m_frameTime(frameTime), m_currentFrame(0), m_isPaused(paused), m_isLooped(looped), m_texture(NULL)
 {
 
 }
 
 void AnimatedSprite::setAnimation(const Animation& animation)
 {
-    m_animation = &animation;
-    m_texture = m_animation->getSpriteSheet();
+    m_animation = animation;
+    m_texture = m_animation.getSpriteSheet();
     m_currentFrame = 0;
     setFrame(m_currentFrame);
 }
@@ -49,8 +51,7 @@ void AnimatedSprite::play()
 
 void AnimatedSprite::play(const Animation& animation)
 {
-    if (getAnimation() != &animation)
-        setAnimation(animation);
+    setAnimation(animation);
     play();
 }
 
@@ -80,14 +81,14 @@ void AnimatedSprite::setColor(const sf::Color& color)
     m_vertices[3].color = color;
 }
 
-const Animation* AnimatedSprite::getAnimation() const
+const Animation& AnimatedSprite::getAnimation() const
 {
     return m_animation;
 }
 
 sf::FloatRect AnimatedSprite::getLocalBounds() const
 {
-    sf::IntRect rect = m_animation->getFrame(m_currentFrame);
+    sf::IntRect rect = m_animation.getFrame(m_currentFrame);
 
     float width = static_cast<float>(std::abs(rect.width));
     float height = static_cast<float>(std::abs(rect.height));
@@ -117,10 +118,10 @@ sf::Time AnimatedSprite::getFrameTime() const
 
 void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
 {
-    if (m_animation)
+    if (m_animation.getSize() > 0)
     {
         //calculate new vertex positions and texture coordiantes
-        sf::IntRect rect = m_animation->getFrame(newFrame);
+        sf::IntRect rect = m_animation.getFrame(newFrame);
 
         m_vertices[0].position = sf::Vector2f(0.f, 0.f);
         m_vertices[1].position = sf::Vector2f(0.f, static_cast<float>(rect.height));
@@ -145,7 +146,7 @@ void AnimatedSprite::setFrame(std::size_t newFrame, bool resetTime)
 void AnimatedSprite::update(sf::Time deltaTime)
 {
     // if not paused and we have a valid animation
-    if (!m_isPaused && m_animation)
+    if (!m_isPaused && m_animation.getSize() > 0)
     {
         // add delta time
         m_currentTime += deltaTime;
@@ -157,7 +158,7 @@ void AnimatedSprite::update(sf::Time deltaTime)
             m_currentTime = sf::microseconds(m_currentTime.asMicroseconds() % m_frameTime.asMicroseconds());
 
             // get next Frame index
-            if (m_currentFrame + 1 < m_animation->getSize())
+            if (m_currentFrame + 1 < m_animation.getSize())
                 m_currentFrame++;
             else
             {
@@ -179,7 +180,7 @@ void AnimatedSprite::update(sf::Time deltaTime)
 
 void AnimatedSprite::draw(sf::RenderTarget& target, sf::RenderStates states) const
 {
-    if (m_animation && m_texture)
+    if (m_animation.getSize() > 0 && m_texture)
     {
         states.transform *= getTransform();
         states.texture = m_texture;

@@ -17,6 +17,8 @@
 class MainGame : public GameState {
     mutable DB entities;
     TextureCache texcache = TextureCache("data/textures.json");
+    std::map<std::string, Animation> animations;
+    AnimatedSprite playerAnimSpr;
     Camera cam;
     EntID player;
 public:

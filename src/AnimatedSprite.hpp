@@ -1,4 +1,6 @@
 ////////////////////////////////////////////////////////////
+// Modified by Jeramy Harrison 2015-04-20.
+////////////////////////////////////////////////////////////
 //
 // Copyright (C) 2014 Maximilian Wagenbach (aka. Foaly) (foaly.f@web.de)
 //
@@ -46,7 +48,7 @@ public:
     void stop();
     void setLooped(bool looped);
     void setColor(const sf::Color& color);
-    const Animation* getAnimation() const;
+    const Animation& getAnimation() const;
     sf::FloatRect getLocalBounds() const;
     sf::FloatRect getGlobalBounds() const;
     bool isLooped() const;
@@ -55,7 +57,7 @@ public:
     void setFrame(std::size_t newFrame, bool resetTime = true);
 
 private:
-    const Animation* m_animation;
+    Animation m_animation;
     sf::Time m_frameTime;
     sf::Time m_currentTime;
     std::size_t m_currentFrame;

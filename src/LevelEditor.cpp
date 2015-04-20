@@ -107,6 +107,8 @@ LevelEditor::LevelEditor() {
     }
     json["player_spawn"]["row"] = 3;
     json["player_spawn"]["col"] = 3;
+    json["exit"]["row"] = 10;
+    json["exit"]["col"] = 10;
 }
 
 bool LevelEditor::halts_update() const {
@@ -151,6 +153,10 @@ void LevelEditor::update(Engine &engine, double time_step) {
                     case 255:
                         json["player_spawn"]["row"] = ty;
                         json["player_spawn"]["col"] = tx;
+                        break;
+                    case 254:
+                        json["exit"]["row"] = ty;
+                        json["exit"]["col"] = tx;
                         break;
                 }
             }

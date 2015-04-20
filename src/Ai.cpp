@@ -19,6 +19,12 @@ void PlayerAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_ai) 
     auto& vel = me.get<Velocity>().data();
     auto collinfo = me.get<CollisionData>();
 
+    AiStateComponent state;
+    state.flipped = me.get<Sprite>().data().flipped;
+    state.anim_group = "player";
+    state.anim_name = "stand";
+    db.makeComponent(me,state);
+
     {
         auto li = me.get<LockInput>();
         if (li) {
@@ -29,9 +35,15 @@ void PlayerAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_ai) 
 
     if (engine.isKeyDown(sf::Keyboard::Left) || engine.isKeyDown(sf::Keyboard::A)) {
         vel.acc.x += -2000;
+        state.anim_name = "walk";
+        state.flipped = true;
+        db.makeComponent(me,state);
     }
     if (engine.isKeyDown(sf::Keyboard::Right) || engine.isKeyDown(sf::Keyboard::D)) {
         vel.acc.x += 2000;
+        state.anim_name = "walk";
+        state.flipped = false;
+        db.makeComponent(me,state);
     }
     if (engine.wasKeyPressed(sf::Keyboard::Up) || engine.wasKeyPressed(sf::Keyboard::W)) {
         if (collinfo) {
@@ -51,11 +63,17 @@ void PlayerAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_ai) 
         db.makeComponent(me, AIComponent{PlayerAIIdle{}});
         return;
     }
+
+
 }
 
 void PlayerAIWithBear::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_ai) {
     auto& vel = me.get<Velocity>().data();
     auto collinfo = me.get<CollisionData>();
+    AiStateComponent state;
+    state.flipped = me.get<Sprite>().data().flipped;
+    state.anim_group = "player";
+    state.anim_name = "stand";
 
     {
         auto li = me.get<LockInput>();
@@ -93,7 +111,15 @@ void PlayerAIWithBear::operator()(Engine& engine, DB& db, EntID me, AIComponent&
 
 void PlayerAIIdle::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_ai) {
     auto& vel = me.get<Velocity>().data();
+    auto& anim = me.get<Sprite>().data();
     auto collinfo = me.get<CollisionData>();
+    AiStateComponent state;
+    if (auto asc = me.get<AiStateComponent>()) {
+        state.flipped = me.get<Sprite>().data().flipped;
+        state.anim_group = "player";
+        state.anim_name = "stand";
+        db.makeComponent(me, state);
+    }
 }
 
 void PlayerBearAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_ai) {
@@ -101,6 +127,21 @@ void PlayerBearAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_
     auto& bb = me.get<BoundingBox>().data();
     auto& anim = me.get<Sprite>().data();
     auto collinfo = me.get<CollisionData>();
+
+    AiStateComponent state;
+    bool attacking = false;
+
+    if (auto asc = me.get<AiStateComponent>()) {
+        if (anim.spr.isPlaying() && (asc.data().anim_name=="hurt" || asc.data().anim_name=="attack")) {
+            attacking = true;
+        }
+    }
+    if (!attacking) {
+        state.flipped = me.get<Sprite>().data().flipped;
+        state.anim_group = "bear";
+        state.anim_name = "stand";
+        db.makeComponent(me, state);
+    }
 
     {
         auto li = me.get<LockInput>();
@@ -112,9 +153,19 @@ void PlayerBearAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_
 
     if (engine.isKeyDown(sf::Keyboard::Left) || engine.isKeyDown(sf::Keyboard::A)) {
         vel.acc.x += -2000;
+        if (!attacking) {
+            state.anim_name = "walk";
+            state.flipped = true;
+            db.makeComponent(me, state);
+        }
     }
     if (engine.isKeyDown(sf::Keyboard::Right) || engine.isKeyDown(sf::Keyboard::D)) {
         vel.acc.x += 2000;
+        if (!attacking) {
+            state.anim_name = "walk";
+            state.flipped = false;
+            db.makeComponent(me, state);
+        }
     }
     if (engine.wasKeyPressed(sf::Keyboard::Up) || engine.wasKeyPressed(sf::Keyboard::W)) {
         if (collinfo) {
@@ -155,5 +206,7 @@ void PlayerBearAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_
         db.makeComponent(slash, BoundingBox{{bb.rect.left+(anim.flipped?-1:1)*bb.rect.width,bb.rect.top,16,32}});
         db.makeComponent(slash, PainBox{PainBox::Team::PLAYER});
         db.makeComponent(slash, TimerComponent{[&db,slash]{db.eraseEntity(slash);},0.10});
+        state.anim_name = "attack";
+        db.makeComponent(me,state);
     }
 }

@@ -6,8 +6,15 @@
 #define LUDUMDARE32_AICOMPONENT_HPP
 
 #include "entcom.hpp"
+#include "PhysicsEngine.hpp"
+#include "components.hpp"
 #include <functional>
 #include <string>
+#include <cstdlib>
+
+using components::BoundingBox;
+using components::Sprite;
+using components::Velocity;
 
 class Engine;
 
@@ -63,42 +70,53 @@ struct PlayerAI {
     void operator()(EntID, AIComponent &);
 }; // end PlayerAI
 #endif
-#if 0
 struct GoombaAI {
-    void operator()(EntID me, AIComponent &myAi) {
-        AiStateComponent curState;
-        
-        if (isFalling())
-            curState = falling;
-        else
-            curState = walking;
-
-        if (wallCollision()) {
-            curState.flipped = !curState.flipped;
-            if (curState.flipped)
-                curState.vx = -1;
-            else
-                curState.vx = 1;
-        } // end if
-
-        db.makeComponent(me, curState);
-    }
-
-    AiStateComponent walking;
-    AiStateComponent falling;
+    bool movingRight;
+    bool hitLeftRight;
+    bool hitDown;
+    bool shouldJump;
+    double maxVel;
 
     GoombaAI() {
-        walking.vx = 1;
-        walking.vy = 0;
-        walking.anim = "walking";
-        walking.flipped = 0;
-
-        falling.vx = 0;
-        falling.vy = 1;
-        falling.anim = "falling";
-        falling.flipped = 0;
+        movingRight = true;
+        maxVel = 2000;
     } // end constructor
+
+    void operator()(Engine& engine, EntID me, AIComponent& myAi) {
+        auto& vel = me.get<Velocity>().data();
+        auto colinfo = me.get<CollisionData>();
+        hitLeftRight = false;
+        hitDown = false;
+        shouldJump = false;
+
+        if (std::rand() % 10 < 2)
+            shouldJump = true;
+
+        if (colinfo) {
+            auto& coldata = colinfo.data();
+
+            for (auto& hit : coldata.hits) {
+                if (hit.dir == CollisionData::HitDir::RIGHT || hit.dir == CollisionData::HitDir::LEFT)
+                    hitLeftRight = true;
+                if (hit.dir == CollisionData::HitDir::DOWN)
+                    hitDown = true;
+            } // end for
+        } // end if
+
+        if (hitLeftRight)
+            movingRight = !movingRight;
+        if (movingRight && vel.vel.x < maxVel)
+            vel.acc.x += 500;
+        if (!movingRight && -vel.vel.x < maxVel)
+            vel.acc.x -= 500;
+        if (hitDown)
+            vel.vel.y = 0;
+        if (!hitDown && vel.vel.y < maxVel)
+            vel.acc.y += 4000;
+        if (vel.vel.y == 0 && shouldJump)
+            vel.acc.y -= 40000;
+    } // end operator()
+
 };
-#endif
 
 #endif // LUDUMDARE32_AICOMPONENT_HPP

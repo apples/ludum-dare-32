@@ -1,5 +1,5 @@
 #ifndef _PHYSICSENGINE_H
-#define _pHYSICSENGINE_H
+#define _PHYSICSENGINE_H
 
 #include"components.hpp"
 #include "entcom.hpp"

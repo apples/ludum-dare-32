@@ -11,6 +11,7 @@
 #include <json/json.h>
 
 #include <fstream>
+#include <cstdlib>
 
 using components::BoundingBox;
 using components::Sprite;
@@ -68,29 +69,73 @@ void MainGame::load(Json::Value json) {
         }
         y += sprH;
     }
+#if 0
     {
         Sprite player_sprite{{tex, sf::IntRect(sprW, 0, sprW, sprH)}, 1};
         BoundingBox player_bb{{64, 64+32, sprW, sprH}};
         Velocity player_vel{{50, 0}};
-        AIComponent player_ai {[](Engine& engine, EntID me, AIComponent& my_ai){
-            auto& vel = me.get<Velocity>().data();
-            if (engine.isKeyDown(sf::Keyboard::Left)) {
-                vel.acc.x += -2000;
-            }
-            if (engine.isKeyDown(sf::Keyboard::Right)) {
-                vel.acc.x += 2000;
-            }
-            if (engine.wasKeyPressed(sf::Keyboard::Up)) {
-                vel.timed_accs.push_back({{0,-40000},0.015});
-            }
-        }};
 
+        bool movingRight = true;
+        AIComponent player_ai {[=](Engine& engine, EntID me, AIComponent& my_ai) mutable {
+            auto& vel = me.get<Velocity>().data();
+            auto colinfo = me.get<CollisionData>();
+            bool hitLeftRight = false;
+            bool hitDown = false;
+            bool shouldJump = false;
+
+            if (rand() % 10 < 1)
+                shouldJump = true;
+
+            if (colinfo) {
+                auto& coldata = colinfo.data();
+
+                for (auto & hit : coldata.hits) {
+                    if (hit.dir == CollisionData::HitDir::RIGHT)
+                        hitLeftRight = true;
+                    if (hit.dir == CollisionData::HitDir::LEFT)
+                        hitLeftRight = true;
+                    if (hit.dir == CollisionData::HitDir::DOWN)
+                        hitDown = true;
+                } // end for
+            } // end if
+
+            double maxVel = 2000;
+
+            if (hitLeftRight)
+                movingRight = !movingRight;
+            if (movingRight && vel.vel.x < maxVel)
+                vel.acc.x += 2000;
+            if (!movingRight && -vel.vel.x < maxVel)
+                vel.acc.x -= 2000;
+            if (hitDown)
+                vel.vel.y = 0;
+            if (!hitDown && vel.vel.y < maxVel)
+                vel.acc.y += 4000;
+            if (vel.vel.y == 0 && shouldJump)
+                vel.acc.y -= 40000;
+
+        }};
         auto player = entities.makeEntity();
         entities.makeComponent(player, player_sprite);
         entities.makeComponent(player, player_bb);
         entities.makeComponent(player, player_vel);
         entities.makeComponent(player, player_ai);
     }
+#endif
+    {
+        Sprite goomba_sprite{{tex, sf::IntRect(sprW, 0, sprW, sprH)}, 1};
+        BoundingBox goomba_bb{{64, 64+32, sprW, sprH}};
+        Velocity goomba_vel{{50, 0}};
+        GoombaAI goombaBrain;
+        AIComponent goomba_ai(goombaBrain);         
+        
+        auto goomba = entities.makeEntity();
+        entities.makeComponent(goomba, goomba_sprite);
+        entities.makeComponent(goomba, goomba_bb);
+        entities.makeComponent(goomba, goomba_vel);
+        entities.makeComponent(goomba, goomba_ai);
+    }
+#
 }
 
 bool MainGame::halts_update() const {

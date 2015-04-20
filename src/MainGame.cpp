@@ -58,7 +58,7 @@ void MainGame::load(Json::Value json) {
         for (auto& tile : row) {
             auto t = tile.asInt();
             if (t>0) {
-                BoundingBox bb{{x, y, sprW, sprH}};
+                BoundingBox bb{{float(x), float(y), float(sprW), float(sprH)}};
                 Sprite spr = terrasprites[t];
                 auto ent = entities.makeEntity();
                 entities.makeComponent(ent, bb);
@@ -71,17 +71,17 @@ void MainGame::load(Json::Value json) {
     }
     {
         Sprite player_sprite{tex, sf::IntRect(sprW, 0, sprW, sprH), 1};
-        BoundingBox player_bb{{64, 64+32, sprW, sprH}};
+        BoundingBox player_bb{{64, 64+32, float(sprW), float(sprH)}};
         Velocity player_vel{{50, 0}};
         AIComponent player_ai {[](Engine& engine, EntID me, AIComponent& my_ai){
             auto& vel = me.get<Velocity>().data();
-            if (engine.isKeyDown(sf::Keyboard::Left)) {
+            if (engine.isKeyDown(sf::Keyboard::Left) || engine.isKeyDown(sf::Keyboard::A)) {
                 vel.acc.x += -2000;
             }
-            if (engine.isKeyDown(sf::Keyboard::Right)) {
+            if (engine.isKeyDown(sf::Keyboard::Right) || engine.isKeyDown(sf::Keyboard::D)) {
                 vel.acc.x += 2000;
             }
-            if (engine.wasKeyPressed(sf::Keyboard::Up)) {
+            if (engine.wasKeyPressed(sf::Keyboard::Up) || engine.wasKeyPressed(sf::Keyboard::W)) {
                 vel.timed_accs.push_back({{0,-40000},0.015});
             }
         }};

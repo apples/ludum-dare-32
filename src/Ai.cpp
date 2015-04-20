@@ -135,7 +135,7 @@ void PlayerBearAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_
                 db.eraseComponent(la.id());
             }
         }
-        db.makeComponent(me, AIComponent{PlayerAIIdle{}}); // TODO: BearAI
+        db.makeComponent(me, AIComponent{BearAI{}}); // TODO: BearAI
         return;
     }
     if (engine.wasKeyPressed(sf::Keyboard::Return)) {

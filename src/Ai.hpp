@@ -73,16 +73,10 @@ struct PlayerBearAIIdle {
 };
 
 struct BearAI {
-    DB *database;
     bool hitLeftRight;
     bool hitDown;
     bool shouldJump;
-    double maxVel;
-
-    BearAI(DB *input_db) {
-        database = input_db;
-        maxVel = 2000;
-    };
+    double maxVel = 2000;
 
     void operator()(Engine& engine, DB& db, EntID me, AIComponent& myAi) {
         auto& vel = me.get<Velocity>().data();
@@ -95,7 +89,7 @@ struct BearAI {
         hitLeftRight = false;
         hitDown = false;
 
-        auto enemies = database->query<Enemy>();
+        auto enemies = db.query<Enemy>();
         
         myX = me.get<BoundingBox>().data().rect.left;
         myY = me.get<BoundingBox>().data().rect.top;

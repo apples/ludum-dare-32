@@ -18,6 +18,7 @@ using components::BoundingBox;
 using components::Sprite;
 using components::Velocity;
 using components::Enemy;
+using components::Solid;
 
 class Engine;
 
@@ -127,9 +128,9 @@ struct BearAI {
             } // end for
         } // end if
 
-        if (!target) {
+        if (target) {
             if (hitLeftRight)
-                vel.acc.y -= 40000;
+                vel.acc.x *= -1.0 / 2;
             if (targetX < myX && -vel.vel.x < maxVel)
                 vel.acc.x -= 2000;
             if (targetX > myX && vel.vel.x < maxVel)
@@ -139,8 +140,6 @@ struct BearAI {
         } // end if
 
         else {
-            vel.vel.x = 0;
-            vel.vel.y = 0;
         } // end else
                 
     } // end operator()
@@ -148,13 +147,15 @@ struct BearAI {
     
 
 struct GoombaAI {
+    DB *database;
     bool movingRight;
     bool hitLeftRight;
-    bool hitDown;
+    bool onFloor;
     bool shouldJump;
     double maxVel;
 
-    GoombaAI() {
+    GoombaAI(DB *input_db) {
+        database = input_db;
         movingRight = true;
         maxVel = 2000;
     } // end constructor
@@ -163,7 +164,7 @@ struct GoombaAI {
         auto& vel = me.get<Velocity>().data();
         auto colinfo = me.get<CollisionData>();
         hitLeftRight = false;
-        hitDown = false;
+        onFloor = false;
         shouldJump = false;
 
         if (std::rand() % 10 < 2)
@@ -175,8 +176,8 @@ struct GoombaAI {
             for (auto& hit : coldata.hits) {
                 if (hit.dir == CollisionData::HitDir::RIGHT || hit.dir == CollisionData::HitDir::LEFT)
                     hitLeftRight = true;
-                if (hit.dir == CollisionData::HitDir::DOWN)
-                    hitDown = true;
+                if (hit.dir == CollisionData::HitDir::DOWN || hit.eid.get<Solid>())
+                    onFloor = true;
             } // end for
         } // end if
 
@@ -186,14 +187,12 @@ struct GoombaAI {
             vel.acc.x += 500;
         if (!movingRight && -vel.vel.x < maxVel)
             vel.acc.x -= 500;
-        if (hitDown)
-            vel.vel.y = 0;
-        if (!hitDown && vel.vel.y < maxVel)
+        if (!onFloor && vel.vel.y < maxVel)
             vel.acc.y += 4000;
         if (vel.vel.y == 0 && shouldJump)
             vel.acc.y -= 40000;
     } // end operator()
 
-};
+}; // end GoombaAI
 
 #endif // LUDUMDARE32_AICOMPONENT_HPP

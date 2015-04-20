@@ -4,9 +4,11 @@
 
 #include <functional>
 #include <iostream>
+#include <map>
 #include "GraphicsSandbox.hpp"
 #include "components.hpp"
 #include "Engine.hpp"
+#include "LoadAnimation.hpp"
 using namespace components;
 
 struct TimerComponent {
@@ -38,14 +40,12 @@ GraphicsSandbox::GraphicsSandbox() {
         throw std::runtime_error("Failed to load data/girl.png");
     }
 
-    sf::Vector2i frameSize(32, 64);
-    playerAnim.addFrame(sf::IntRect(sf::Vector2i(frameSize.x * 0, frameSize.y * 1), frameSize));
-    playerAnim.addFrame(sf::IntRect(sf::Vector2i(frameSize.x * 1, frameSize.y * 1), frameSize));
-    playerAnim.addFrame(sf::IntRect(sf::Vector2i(frameSize.x * 2, frameSize.y * 1), frameSize));
-    playerAnim.addFrame(sf::IntRect(sf::Vector2i(frameSize.x * 3, frameSize.y * 1), frameSize));
-    playerAnim.setSpriteSheet(playerTex);
+    texCache = TextureCache("data/textures.json");
 
-    playerAnimSpr.setAnimation(playerAnim);
+
+    animations = loadAnimation("player.json", texCache);
+
+    playerAnimSpr.setAnimation(animations["walk"]);
     playerAnimSpr.setFrameTime(sf::seconds(0.25f));
     playerAnimSpr.setLooped(true);
     playerAnimSpr.setScale(5.f, 5.f);
@@ -56,7 +56,7 @@ GraphicsSandbox::GraphicsSandbox() {
         for (int j = 0; j < 50; j++) {
             EntID eid = db.makeEntity();
             sf::Vector2f pos = sf::Vector2f(i * tileSize.x, j * tileSize.y);
-            sf::Sprite spr(tileTex);
+            sf::Sprite spr(texCache.get("brick"));
             spr.setPosition(pos);
             db.makeComponent(eid, Sprite{spr});
             db.makeComponent(eid, BoundingBox{sf::FloatRect{pos, tileSize}});

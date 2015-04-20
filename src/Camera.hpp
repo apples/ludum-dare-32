@@ -58,8 +58,8 @@ public:
         auto spriteComp = [](const auto& ent1, const auto& ent2) {
             const auto& spr1 = std::get<1>(ent1).data();
             const auto& spr2 = std::get<1>(ent2).data();
-            auto tup1 = std::make_tuple(spr1.layer, spr1.spr.getTexture());
-            auto tup2 = std::make_tuple(spr2.layer, spr2.spr.getTexture());
+            auto tup1 = std::make_tuple(spr1.layer, spr1.spr.getAnimation()->getSpriteSheet());
+            auto tup2 = std::make_tuple(spr2.layer, spr2.spr.getAnimation()->getSpriteSheet());
             return tup1 < tup2;
         };
         std::sort(std::begin(items), std::end(items), spriteComp);
@@ -67,7 +67,7 @@ public:
         for (auto& ent : items) {
             sf::FloatRect sprRect(std::get<2>(ent).data().rect);
             if (rect.intersects(sprRect)) {
-                sf::Sprite spr(std::get<1>(ent).data().spr);
+                auto spr(std::get<1>(ent).data().spr);
                 spr.setPosition(-getPosition() + sf::Vector2f(sprRect.left, sprRect.top));
                 window.draw(spr);
             }

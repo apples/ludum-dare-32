@@ -10,6 +10,7 @@
 #include "Camera.hpp"
 #include "AnimatedSprite.hpp"
 #include "Animation.hpp"
+#include "TextureCache.hpp"
 
 #include <SFML/Graphics.hpp>
 
@@ -20,8 +21,10 @@ class GraphicsSandbox : public GameState {
     Camera cam;
 
     sf::Texture playerTex;
-    Animation playerAnim;
+    std::map<std::string, Animation> animations;
     AnimatedSprite playerAnimSpr;
+
+    TextureCache texCache;
 
 public:
     GraphicsSandbox();

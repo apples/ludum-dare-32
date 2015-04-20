@@ -3,6 +3,7 @@
 
 #include <SFML/System.hpp>
 #include <SFML/Graphics/Sprite.hpp>
+#include "AnimatedSprite.hpp"
 
 namespace components {
 
@@ -22,8 +23,18 @@ struct Player {
 };
 
 struct Sprite {
-    sf::Sprite spr;
+    AnimatedSprite spr;
     int layer;
+
+    Sprite() = default;
+    Sprite(sf::Sprite sspr) {
+        Animation anim;
+        const sf::Texture *tex = sspr.getTexture();
+        anim.addFrame(sf::IntRect(sf::Vector2i(0, 0), sf::Vector2i(tex->getSize())));
+        anim.setSpriteSheet(*tex);
+        spr.setAnimation(anim);
+    }
+    Sprite(sf::Sprite sspr, int lyr) : Sprite(sspr) { layer = lyr; }
 };
 
 struct BoundingBox {

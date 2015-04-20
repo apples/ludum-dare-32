@@ -6,6 +6,8 @@
 
 namespace {
 
+using HitDirPair = std::pair<CollisionData::HitDir,CollisionData::HitDir>;
+
 struct GetX {
     template<typename T>
     auto operator()(T &t) -> decltype((t.x)) { return t.x; }
@@ -13,6 +15,14 @@ struct GetX {
     auto len(sf::FloatRect &t) -> decltype((t.width)) { return t.width; }
     template<typename T>
     auto other(T &t) -> decltype((t.y)) { return t.y; }
+    HitDirPair hitdirs(const sf::FloatRect& e1, const sf::FloatRect& e2) {
+        HitDirPair rv = {CollisionData::HitDir::RIGHT,CollisionData::HitDir::LEFT};
+        if (e1.left < e2.left) {
+        } else {
+            std::swap(rv.first,rv.second);
+        }
+        return rv;
+    }
 };
 
 struct GetY {
@@ -22,6 +32,14 @@ struct GetY {
     auto len(sf::FloatRect &t) -> decltype((t.height)) { return t.height; }
     template<typename T>
     auto other(T &t) -> decltype((t.x)) { return t.x; }
+    HitDirPair hitdirs(const sf::FloatRect& e1, const sf::FloatRect& e2) {
+        HitDirPair rv = {CollisionData::HitDir::DOWN,CollisionData::HitDir::UP};
+        if (e1.top < e2.top) {
+        } else {
+            std::swap(rv.first,rv.second);
+        }
+        return rv;
+    }
 };
 
 } // static
@@ -88,8 +106,9 @@ void physics_step(DB& db, double timeStep) {
                         bb_coll_info = bb_eid.get<CollisionData>();
                     }
 
-                    v_coll_info.data().hits.push_back(bb_eid);
-                    bb_coll_info.data().hits.push_back(v_eid);
+                    auto hitdirs = get_axis.hitdirs(v_bb.rect, bb.rect);
+                    v_coll_info.data().hits.push_back(CollisionData::Hit{bb_eid,hitdirs.first});
+                    bb_coll_info.data().hits.push_back(CollisionData::Hit{v_eid,hitdirs.second});
                 }
             }
             get_axis(v_vel.acc) = 0;

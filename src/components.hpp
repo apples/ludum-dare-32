@@ -4,6 +4,7 @@
 #include <SFML/System.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include "AnimatedSprite.hpp"
+#include "entcom.hpp"
 
 namespace components {
 
@@ -47,6 +48,13 @@ struct Sprite {
 
 struct BoundingBox {
     sf::FloatRect rect;
+};
+
+struct LookAt {
+    EntID target;
+};
+
+struct LockInput {
 };
 
 struct Solid {

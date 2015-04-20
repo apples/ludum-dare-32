@@ -20,6 +20,7 @@ using components::Sprite;
 using components::Solid;
 using components::NoCollide;
 using components::Velocity;
+using components::LookAt;
 
 MainGame::MainGame() {
     load_level("data/sandy.json");
@@ -98,18 +99,25 @@ void MainGame::load(Json::Value json) {
 
         BoundingBox player_bb{{json["player_spawn"]["col"].asInt()*sprW, json["player_spawn"]["col"].asInt()*sprH, sprW, sprH*2}};
         Velocity player_vel{};
-        AIComponent player_ai{[](Engine& engine, EntID me, AIComponent& my_ai) {
-            auto& vel = me.get<Velocity>().data();
-            if (engine.isKeyDown(sf::Keyboard::Left) || engine.isKeyDown(sf::Keyboard::A)) {
-                vel.acc.x += -2000;
-            }
-            if (engine.isKeyDown(sf::Keyboard::Right) || engine.isKeyDown(sf::Keyboard::D)) {
-                vel.acc.x += 2000;
-            }
-            if (engine.wasKeyPressed(sf::Keyboard::Up) || engine.wasKeyPressed(sf::Keyboard::W)) {
-                vel.timed_accs.push_back({{0,-40000},0.015});
-            }
-        }};
+        AIComponent player_ai{AIComponent{PlayerAI{[=](EntID peid){
+            auto pbb = peid.get<BoundingBox>().data().rect;
+            Sprite bear_sprite;
+            animations = loadAnimation("player.json", texcache);
+            bear_sprite.spr.setAnimation(animations.at("walk"));
+            bear_sprite.spr.setFrameTime(sf::seconds(0.25f));
+            bear_sprite.spr.setLooped(true);
+            bear_sprite.spr.update(sf::seconds(1));
+            bear_sprite.layer = 1;
+
+            BoundingBox bear_bb{{pbb.left+sprW, pbb.top, sprW, sprH}};
+            Velocity bear_vel{};
+
+            auto bear = entities.makeEntity();
+            entities.makeComponent(bear, bear_sprite);
+            entities.makeComponent(bear, bear_bb);
+            entities.makeComponent(bear, bear_vel);
+            return bear;
+        }}}};
 
         player = entities.makeEntity();
         entities.makeComponent(player, player_sprite);
@@ -133,7 +141,11 @@ void MainGame::update(Engine& engine, double time_step) {
     update_sprites(entities, time_step);
 
     {
-        auto& playerbb = player.get<BoundingBox>().data().rect;
+        auto lookat = player;
+        while (auto lookatinfo = lookat.get<LookAt>()) {
+            lookat = lookatinfo.data().target;
+        }
+        auto& playerbb = lookat.get<BoundingBox>().data().rect;
         cam.setPosition(playerbb.left + playerbb.width / 2.0 - 400, playerbb.top + playerbb.height / 2.0 - 300);
     }
 

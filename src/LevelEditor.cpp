@@ -146,9 +146,7 @@ void LevelEditor::update(Engine &engine, double time_step) {
         if (tx >= 0 && tx < json["width"].asInt() && ty >= 0 && ty < json["height"].asInt()) {
             if (active_tile%16<8||active_tile/16<14) {
                 json["rows"][ty][tx] = active_tile;
-                ECHO("A",active_tile);
             } else {
-                ECHO("B",active_tile);
                 switch (active_tile) {
                     case 255:
                         json["player_spawn"]["row"] = ty;

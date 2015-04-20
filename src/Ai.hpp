@@ -25,9 +25,9 @@ void update_ais(Engine& engine, DB& db);
 
 struct AIComponent {
     template <class T> AIComponent(T inputAi) { brain = inputAi; }
-    std::function<void(Engine&, EntID, AIComponent &)> brain;
+    std::function<void(Engine&, DB&, EntID, AIComponent &)> brain;
 
-    void update(Engine& engine, EntID id) { brain(engine, id, *this); }
+    void update(Engine& engine, DB& db, EntID id) { brain(engine, db, id, *this); }
 
 };
 
@@ -46,33 +46,30 @@ struct AiStateComponent {
     } // end setAll
 }; // end AiStateComponent
 
-#if 0
 struct PlayerAI {
-    double walkVelocity;
-    double fallVelocity;
-    double knockbackVelocity;
-    double jumpVelocity;
-
-    AiStateComponent idle;
-    AiStateComponent walkingLeft;
-    AiStateComponent walkingRight;
-    AiStateComponent fallingLeft;
-    AiStateComponent fallingRight;
-    AiStateComponent fallingDown;
-    AiStateComponent jumpingLeft;
-    AiStateComponent jumpintRight;
-    AiStateComponent jumpingUp;
-    AiStateComponent knockbackLeft;
-    AiStateComponent knockbackRight;
-    AiStateComponent dying;
-    AiStateComponent summoning;
-    AiStateComponent dismissing;
-
-    PlayerAI(double, double, double, double);
-
-    void operator()(EntID, AIComponent &);
+    std::function<EntID(EntID)> make_bear;
+    void operator()(Engine& engine, DB&, EntID me, AIComponent &my_ai);
 }; // end PlayerAI
-#endif
+
+struct PlayerAIWithBear {
+    EntID bear;
+    std::function<EntID(EntID)> make_bear;
+    void operator()(Engine& engine, DB&, EntID me, AIComponent &my_ai);
+}; // end PlayerAI
+
+struct PlayerAIIdle {
+    void operator()(Engine& engine, DB&, EntID me, AIComponent &my_ai);
+};
+
+struct PlayerBearAI {
+    EntID player;
+    std::function<EntID(EntID)> make_bear;
+    void operator()(Engine& engine, DB&, EntID me, AIComponent &my_ai);
+};
+
+struct PlayerBearAIIdle {
+    void operator()(Engine& engine, DB&, EntID me, AIComponent &my_ai);
+};
 
 struct BearAI {
     DB *database;

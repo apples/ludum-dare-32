@@ -14,11 +14,7 @@
 #include <memory>
 #include <cmath>
 
-using components::BoundingBox;
-using components::Sprite;
-using components::Velocity;
-using components::Enemy;
-using components::Solid;
+using namespace components;
 
 class Engine;
 
@@ -26,9 +22,9 @@ void update_ais(Engine& engine, DB& db);
 
 struct AIComponent {
     template <class T> AIComponent(T inputAi) { brain = inputAi; }
-    std::function<void(Engine&, EntID, AIComponent &)> brain;
+    std::function<void(Engine&, DB&, EntID, AIComponent &)> brain;
 
-    void update(Engine& engine, EntID id) { brain(engine, id, *this); }
+    void update(Engine& engine, DB& db, EntID id) { brain(engine, db, id, *this); }
 
 };
 
@@ -47,47 +43,38 @@ struct AiStateComponent {
     } // end setAll
 }; // end AiStateComponent
 
-#if 0
 struct PlayerAI {
-    double walkVelocity;
-    double fallVelocity;
-    double knockbackVelocity;
-    double jumpVelocity;
-
-    AiStateComponent idle;
-    AiStateComponent walkingLeft;
-    AiStateComponent walkingRight;
-    AiStateComponent fallingLeft;
-    AiStateComponent fallingRight;
-    AiStateComponent fallingDown;
-    AiStateComponent jumpingLeft;
-    AiStateComponent jumpintRight;
-    AiStateComponent jumpingUp;
-    AiStateComponent knockbackLeft;
-    AiStateComponent knockbackRight;
-    AiStateComponent dying;
-    AiStateComponent summoning;
-    AiStateComponent dismissing;
-
-    PlayerAI(double, double, double, double);
-
-    void operator()(EntID, AIComponent &);
+    std::function<EntID(EntID)> make_bear;
+    void operator()(Engine& engine, DB&, EntID me, AIComponent &my_ai);
 }; // end PlayerAI
-#endif
+
+struct PlayerAIWithBear {
+    EntID bear;
+    std::function<EntID(EntID)> make_bear;
+    void operator()(Engine& engine, DB&, EntID me, AIComponent &my_ai);
+}; // end PlayerAI
+
+struct PlayerAIIdle {
+    void operator()(Engine& engine, DB&, EntID me, AIComponent &my_ai);
+};
+
+struct PlayerBearAI {
+    EntID player;
+    std::function<EntID(EntID)> make_bear;
+    void operator()(Engine& engine, DB&, EntID me, AIComponent &my_ai);
+};
+
+struct PlayerBearAIIdle {
+    void operator()(Engine& engine, DB&, EntID me, AIComponent &my_ai);
+};
 
 struct BearAI {
-    DB *database;
     bool hitLeftRight;
     bool hitDown;
     bool shouldJump;
-    double maxVel;
+    double maxVel = 2000;
 
-    BearAI(DB *input_db) {
-        database = input_db;
-        maxVel = 2000;
-    };
-
-    void operator()(Engine& engine, EntID me, AIComponent& myAi) {
+    void operator()(Engine& engine, DB& db, EntID me, AIComponent& myAi) {
         auto& vel = me.get<Velocity>().data();
         auto colinfo = me.get<CollisionData>();
         std::unique_ptr<EntID> target;
@@ -98,7 +85,7 @@ struct BearAI {
         hitLeftRight = false;
         hitDown = false;
 
-        auto enemies = database->query<Enemy>();
+        auto enemies = db.query<Enemy>();
         
         myX = me.get<BoundingBox>().data().rect.left;
         myY = me.get<BoundingBox>().data().rect.top;
@@ -147,20 +134,13 @@ struct BearAI {
     
 
 struct GoombaAI {
-    DB *database;
-    bool movingRight;
+    bool movingRight = true;
     bool hitLeftRight;
     bool onFloor;
     bool shouldJump;
-    double maxVel;
+    double maxVel = 2000;
 
-    GoombaAI(DB *input_db) {
-        database = input_db;
-        movingRight = true;
-        maxVel = 2000;
-    } // end constructor
-
-    void operator()(Engine& engine, EntID me, AIComponent& myAi) {
+    void operator()(Engine& engine, DB& db, EntID me, AIComponent& myAi) {
         auto& vel = me.get<Velocity>().data();
         auto colinfo = me.get<CollisionData>();
         hitLeftRight = false;
@@ -174,6 +154,13 @@ struct GoombaAI {
             auto& coldata = colinfo.data();
 
             for (auto& hit : coldata.hits) {
+                if (auto pb = hit.eid.get<PainBox>()) {
+                    if (pb.data().team == PainBox::Team::PLAYER) {
+                        //TODO: smokebomb
+                        db.eraseEntity(me);
+                        return;
+                    }
+                }
                 if (hit.dir == CollisionData::HitDir::RIGHT || hit.dir == CollisionData::HitDir::LEFT)
                     hitLeftRight = true;
                 if (hit.dir == CollisionData::HitDir::DOWN || hit.eid.get<Solid>())

@@ -20,6 +20,7 @@ using components::Sprite;
 using components::Solid;
 using components::NoCollide;
 using components::Velocity;
+using components::LookAt;
 
 MainGame::MainGame() {
     load_level("data/sandy.json");
@@ -46,7 +47,7 @@ void MainGame::load(Json::Value json) {
         file >> tjson;
         for (auto& tdatum : tjson) {
             auto id = tdatum["id"].asInt();
-            auto is_solid = tdatum.get("solid",false).asBool();
+            auto is_solid = tdatum.get("solid", false).asBool();
             terrain_data[id].is_solid = is_solid;
         }
     }
@@ -59,16 +60,17 @@ void MainGame::load(Json::Value json) {
     std::vector<Sprite> terrasprites;
     terrasprites.reserve(256);
     for (int i = 0; i < 256; ++i) {
-        Sprite sprite{tex, sf::IntRect((i % 16) * sprW, (i / 16) * sprH, sprW, sprH), terrain_data[i].is_solid?1:-1};
+        Sprite sprite{tex, sf::IntRect((i % 16) * sprW, (i / 16) * sprH, sprW, sprH),
+                      terrain_data[i].is_solid ? 1 : -1};
         terrasprites.push_back(sprite);
     }
 
     auto width = json["width"].asInt();
     auto height = json["height"].asInt();
 
-    auto y = sprH / 2.f;
+    auto y = 0.f;
     for (auto& row : json["rows"]) {
-        auto x = sprW / 2.f;
+        auto x = 0.f;
         for (auto& tile : row) {
             auto t = tile.asInt();
             if (t > 0) {
@@ -87,28 +89,37 @@ void MainGame::load(Json::Value json) {
         }
         y += sprH;
     }
-     {
+    {
         Sprite player_sprite;
         animations = loadAnimation("player.json", texcache);
         player_sprite.spr.setAnimation(animations.at("walk"));
         player_sprite.spr.setFrameTime(sf::seconds(0.25f));
         player_sprite.spr.setLooped(true);
         player_sprite.spr.update(sf::seconds(1));
+        player_sprite.layer = 0;
 
-        BoundingBox player_bb{{64, 64 + 32, sprW, sprH*2}};
-        Velocity player_vel{{50, 0}};
-        AIComponent player_ai{[](Engine& engine, EntID me, AIComponent& my_ai) {
-            auto& vel = me.get<Velocity>().data();
-            if (engine.isKeyDown(sf::Keyboard::Left) || engine.isKeyDown(sf::Keyboard::A)) {
-                vel.acc.x += -2000;
-            }
-            if (engine.isKeyDown(sf::Keyboard::Right) || engine.isKeyDown(sf::Keyboard::D)) {
-                vel.acc.x += 2000;
-            }
-            if (engine.wasKeyPressed(sf::Keyboard::Up) || engine.wasKeyPressed(sf::Keyboard::W)) {
-                vel.timed_accs.push_back({{0,-40000},0.015});
-            }
-        }};
+        BoundingBox player_bb{{json["player_spawn"]["col"].asInt() * sprW,
+                                      json["player_spawn"]["col"].asInt() * sprH, sprW, sprH * 2}};
+        Velocity player_vel{};
+        AIComponent player_ai{AIComponent{PlayerAI{[=](EntID peid) {
+            auto pbb = peid.get<BoundingBox>().data().rect;
+            Sprite bear_sprite;
+            auto bearanims = loadAnimation("player.json", texcache);
+            bear_sprite.spr.setAnimation(bearanims.at("walk"));
+            bear_sprite.spr.setFrameTime(sf::seconds(0.25f));
+            bear_sprite.spr.setLooped(true);
+            bear_sprite.spr.update(sf::seconds(1));
+            bear_sprite.layer = 1;
+
+            BoundingBox bear_bb{{pbb.left + sprW, pbb.top, sprW, sprH}};
+            Velocity bear_vel{};
+
+            auto bear = entities.makeEntity();
+            entities.makeComponent(bear, bear_sprite);
+            entities.makeComponent(bear, bear_bb);
+            entities.makeComponent(bear, bear_vel);
+            return bear;
+        }}}};
 
         player = entities.makeEntity();
         entities.makeComponent(player, player_sprite);
@@ -116,27 +127,12 @@ void MainGame::load(Json::Value json) {
         entities.makeComponent(player, player_vel);
         entities.makeComponent(player, player_ai);
     }
-
-   {
-        Sprite bear_sprite = terrasprites[33];
-
-        BoundingBox bear_bb{{300, 40, sprW, sprH}};
-        Velocity bear_vel{{50, 0}};
-        BearAI bearBrain(&entities);
-        AIComponent bear_ai(bearBrain);
-
-        EntID bear = entities.makeEntity();
-        entities.makeComponent(bear, bear_sprite);
-        entities.makeComponent(bear, bear_bb);
-        entities.makeComponent(bear, bear_vel);
-        entities.makeComponent(bear, bear_ai);
-    }
     {
         Sprite goomba_sprite = terrasprites[17];
 
         BoundingBox goomba_bb{{600, 200, sprW, sprH}};
-        Velocity goomba_vel{{50, 0}};
-        GoombaAI goombaBrain(&entities);
+        Velocity goomba_vel{};
+        GoombaAI goombaBrain{};
         AIComponent goomba_ai(goombaBrain);
 
         EntID goomba = entities.makeEntity();
@@ -146,7 +142,6 @@ void MainGame::load(Json::Value json) {
         entities.makeComponent(goomba, goomba_ai);
         entities.makeComponent(goomba, Enemy{});
     }
-
 }
 
 bool MainGame::halts_update() const {
@@ -161,9 +156,14 @@ void MainGame::update(Engine& engine, double time_step) {
     update_ais(engine, entities);
     physics_step(entities, time_step);
     update_sprites(entities, time_step);
+    update_timers(entities, time_step);
 
     {
-        auto& playerbb = player.get<BoundingBox>().data().rect;
+        auto lookat = player;
+        while (auto lookatinfo = lookat.get<LookAt>()) {
+            lookat = lookatinfo.data().target;
+        }
+        auto& playerbb = lookat.get<BoundingBox>().data().rect;
         cam.setPosition(playerbb.left + playerbb.width / 2.0 - 400, playerbb.top + playerbb.height / 2.0 - 300);
     }
 

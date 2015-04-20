@@ -67,9 +67,15 @@ public:
         for (auto& ent : items) {
             sf::FloatRect sprRect(std::get<2>(ent).data().rect);
             if (rect.intersects(sprRect)) {
-                auto spr(std::get<1>(ent).data().spr);
-                spr.setPosition(-getPosition() + sf::Vector2f(sprRect.left, sprRect.top));
-                window.draw(spr);
+                auto& anim = std::get<1>(ent).data();
+                auto& bb = std::get<2>(ent).data().rect;
+                auto pos = -getPosition() + sf::Vector2f(sprRect.left, sprRect.top);
+                if (anim.flipped) {
+                    pos.x += bb.width;
+                    anim.spr.setScale(-1,1);
+                }
+                anim.spr.setPosition(pos);
+                window.draw(anim.spr);
             }
         }
     }

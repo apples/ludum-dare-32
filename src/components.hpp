@@ -4,6 +4,7 @@
 #include <SFML/System.hpp>
 #include <SFML/Graphics/Sprite.hpp>
 #include "AnimatedSprite.hpp"
+#include "entcom.hpp"
 
 namespace components {
 
@@ -24,7 +25,8 @@ struct Player {
 
 struct Sprite {
     AnimatedSprite spr;
-    int layer;
+    int layer = 0;
+    bool flipped = false;
 
     Sprite() = default;
     Sprite(sf::Sprite sspr) {
@@ -49,6 +51,21 @@ struct BoundingBox {
     sf::FloatRect rect;
 };
 
+struct LookAt {
+    EntID target;
+};
+
+struct PainBox {
+    enum class Team {
+        PLAYER,
+        HELLBEASTS
+    };
+    Team team;
+};
+
+struct LockInput {
+};
+
 struct Solid {
 };
 
@@ -57,6 +74,22 @@ struct NoCollide {
 
 struct Enemy {
 };
+
+struct TimerComponent {
+    std::function<void()> func;
+    double duration;
+}; // end TimerComponent
+
+inline void update_timers(DB & db, double timeStep) {
+    auto items = db.query<TimerComponent>();
+
+    for (auto & ent : items) {
+        std::get<1>(ent).data().duration -= timeStep;
+
+        if (std::get<1>(ent).data().duration <= 0)
+            std::get<1>(ent).data().func();
+    } // end for
+} // end updateTimers
 
 } // namespace components
 

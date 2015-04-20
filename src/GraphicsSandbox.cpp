@@ -11,27 +11,6 @@
 #include "LoadAnimation.hpp"
 using namespace components;
 
-struct TimerComponent {
-    std::function<void()> func;
-    double duration;
-
-    template <class T> TimerComponent(T inputFunc, double inDur = 5) {
-        func = inputFunc;
-        duration = inDur;
-    } // end constructor
-}; // end TimerComponent
-
-void updateTimers(DB & db, double timeStep) {
-    auto items = db.query<TimerComponent>();
-
-    for (auto & ent : items) {
-        std::get<1>(ent).data().duration -= timeStep;
-
-        if (std::get<1>(ent).data().duration <= 0)
-            std::get<1>(ent).data().func();
-    } // end for
-} // end updateTimers
-
 GraphicsSandbox::GraphicsSandbox() {
     /*
     if (!tileTex.loadFromFile("data/Brick.png")) {

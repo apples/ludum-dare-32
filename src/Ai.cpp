@@ -3,127 +3,157 @@
 //
 
 #include "Ai.hpp"
+#include "Engine.hpp"
+#include "components.hpp"
+#include "LoadAnimation.hpp"
+
+using namespace components;
 
 void update_ais(Engine& engine, DB& db) {
     for (auto ent : db.query<AIComponent>()) {
-        std::get<1>(ent).data().update(engine, std::get<0>(ent));
+        std::get<1>(ent).data().update(engine, db, std::get<0>(ent));
     }
 }
-#if 0
-PlayerAI::PlayerAI(double wv, double fv, double kv, double jv) {
-    walkVelocity = wv;
-    fallVelocity = fv;
-    knockbackVelocity = kv;
-    jumpVelocity = jv;
 
-    idle.setAll(0, 0, "idle", 0);
-    walkingLeft.setAll(-walkVelocity, 0, "walking", 1);
-    walkingRight.setAll(walkVelocity, 0, "walking", 0);
-    fallingLeft.setAll(-walkVelocity, fallVelocity, "falling", 1);
-    fallingRight.setAll(walkVelocity, fallVelocity, "falling", 0);
-    fallingDown.setAll(0, fallVelocity, "falling", 0);
-    jumpingLeft.setAll(-walkVelocity, jumpVelocity, "jumping", 1);
-    jumpingRight.setAll(walkVelocity, jumpVelocity, "jumping", 0);
-    jumpingUp.setAll(0, jumpVelocity, "jumping", 0);
-    knockbackLeft(-knockbackVelocity, 0, "knockback", 1);
-    knockbackRight(knockbackVelocity, 0, "knockback", 0);
-    dying(0, 0, "dying", 0);
-    summoning(0, 0, "summoning", 0);
-    dismissing(0, 0, "dismissing", 0);
-} // end constructor
+void PlayerAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_ai) {
+    auto& vel = me.get<Velocity>().data();
+    auto collinfo = me.get<CollisionData>();
 
-void PlayerAI::operator()(EntID me, AIComponent &myAi) {
-    if (isIdle()) {
-        if (leftKeyPressed)
-            setState(walkingLeft);
-
-        else if (rightKeyPressed)
-            setState(walkingRight);
-
-        else if (spaceKeyPressed)
-            setState(jumpingUp);
-
-        else if (dKeyPressed) {
-            if (summoned)
-                setState(dismissing);
-            else
-                setState(summoning);
-        } // end else if
-
-        else if (enemyCollisionLeft()) {
-            setState(knockbackRight);
-            reduceHealth();
-        } // end else if
-
-        else if (enemyCollisionRight()) {
-            setState(knockbackLeft);
-            reduceHealth();
+    {
+        auto li = me.get<LockInput>();
+        if (li) {
+            db.eraseComponent(li.id());
+            return;
         }
-    } // end if (idle)
+    }
 
-    else if (isWalkingLeft()) {
-        if (leftKeyReleased)
-            setState(idle);
+    if (engine.isKeyDown(sf::Keyboard::Left) || engine.isKeyDown(sf::Keyboard::A)) {
+        vel.acc.x += -2000;
+    }
+    if (engine.isKeyDown(sf::Keyboard::Right) || engine.isKeyDown(sf::Keyboard::D)) {
+        vel.acc.x += 2000;
+    }
+    if (engine.wasKeyPressed(sf::Keyboard::Up) || engine.wasKeyPressed(sf::Keyboard::W)) {
+        if (collinfo) {
+            for (auto& hit : collinfo.data().hits) {
+                if (hit.dir == CollisionData::HitDir::DOWN && hit.eid.get<Solid>()) {
+                    vel.timed_accs.push_back({{0, -40000}, 0.015});
+                    break;
+                }
+            }
+        }
+    }
+    if (engine.wasKeyPressed(sf::Keyboard::Space)) {
+        auto bear = make_bear(me);
+        db.makeComponent(bear, AIComponent{PlayerBearAI{me,make_bear}});
+        db.makeComponent(bear, LockInput{});
+        db.makeComponent(me, LookAt{bear});
+        db.makeComponent(me, AIComponent{PlayerAIIdle{}});
+        return;
+    }
+}
 
-        else if (!collisionFloor())
-            setState(fallingLeft);
+void PlayerAIWithBear::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_ai) {
+    auto& vel = me.get<Velocity>().data();
+    auto collinfo = me.get<CollisionData>();
 
-        else if (spaceKeyPressed)
-            setState(jumpingLeft);
+    {
+        auto li = me.get<LockInput>();
+        if (li) {
+            db.eraseComponent(li.id());
+            return;
+        }
+    }
 
-        else if (rightKeyPressed)
-            setState(walkingRight);
+    if (engine.isKeyDown(sf::Keyboard::Left) || engine.isKeyDown(sf::Keyboard::A)) {
+        vel.acc.x += -2000;
+    }
+    if (engine.isKeyDown(sf::Keyboard::Right) || engine.isKeyDown(sf::Keyboard::D)) {
+        vel.acc.x += 2000;
+    }
+    if (engine.wasKeyPressed(sf::Keyboard::Up) || engine.wasKeyPressed(sf::Keyboard::W)) {
+        if (collinfo) {
+            for (auto& hit : collinfo.data().hits) {
+                if (hit.dir == CollisionData::HitDir::DOWN && hit.eid.get<Solid>()) {
+                    vel.timed_accs.push_back({{0, -40000}, 0.015});
+                    break;
+                }
+            }
+        }
+    }
 
-        else if (enemyCollisionLeft()) {
-            setState(knockbackRight);
-            reduceHealth();
-        } // end else if
+    if (engine.wasKeyPressed(sf::Keyboard::Tab) || engine.wasKeyPressed(sf::Keyboard::Space)) {
+        db.makeComponent(bear, AIComponent{PlayerBearAI{me,make_bear}});
+        db.makeComponent(bear, LockInput{});
+        db.makeComponent(me, LookAt{bear});
+        db.makeComponent(me, AIComponent{PlayerAIIdle{}});
+        return;
+    }
+}
 
-        else if (enemyCollisionRight()) {
-            setState(knockbackLeft);
-            reduceHealth();
-        } // end else if
+void PlayerAIIdle::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_ai) {
+    auto& vel = me.get<Velocity>().data();
+    auto collinfo = me.get<CollisionData>();
+}
 
-        else if (dKeyPressed) {
-            if (summoned)
-                setState(dismissing);
-            else
-                setState(summoning);
-        } // end else if
-} // end operator()
+void PlayerBearAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_ai) {
+    auto& vel = me.get<Velocity>().data();
+    auto& bb = me.get<BoundingBox>().data();
+    auto& anim = me.get<Sprite>().data();
+    auto collinfo = me.get<CollisionData>();
 
-void PlayerAI::operator()(EntID me, AIComponent & myAi) {
-    if (leftKeyPressed) {
-        if (isIdle() || isWalkingRight())
-            setState(walkingLeft);
+    {
+        auto li = me.get<LockInput>();
+        if (li) {
+            db.eraseComponent(li.id());
+            return;
+        }
+    }
 
-        else if (isFallingDown() || isFallingRight())
-            setState(fallingLeft);
-
-        else if (isJumpingRight() || isJumpingUp())
-            setState(jumpingLeft);
-    } // end if
-
-    else if (rightKeyPressed) {
-        if (isIdle() || isWalkingLeft())
-            setState(walkingRight);
-
-        else if (isFallingDown() || isFallingLeft())
-            setState(fallingRight);
-
-        else if (isJumpingLeft() || isJumpingUp())
-            setState(jumpingRight):
-    } // end else if
-
-    else if (spaceKeyPressed) {
-        if (isIdle())
-            setState(jumpingUp);
-
-        else if (isWalkingLeft)
-            setState(jumpingLeft);
-
-        else if (isWalkingRight())
-            setState(jumpingRight);
-    } // end else if
-} // end operator()
-#endif
+    if (engine.isKeyDown(sf::Keyboard::Left) || engine.isKeyDown(sf::Keyboard::A)) {
+        vel.acc.x += -2000;
+    }
+    if (engine.isKeyDown(sf::Keyboard::Right) || engine.isKeyDown(sf::Keyboard::D)) {
+        vel.acc.x += 2000;
+    }
+    if (engine.wasKeyPressed(sf::Keyboard::Up) || engine.wasKeyPressed(sf::Keyboard::W)) {
+        if (collinfo) {
+            for (auto& hit : collinfo.data().hits) {
+                if (hit.dir == CollisionData::HitDir::DOWN && hit.eid.get<Solid>()) {
+                    vel.timed_accs.push_back({{0, -40000}, 0.015});
+                    break;
+                }
+            }
+        }
+    }
+    if (engine.wasKeyPressed(sf::Keyboard::Tab)) {
+        db.makeComponent(player, AIComponent{PlayerAIWithBear{me,make_bear}});
+        db.makeComponent(player, LockInput{});
+        {
+            auto la = player.get<LookAt>();
+            if (la) {
+                db.eraseComponent(la.id());
+            }
+        }
+        db.makeComponent(me, AIComponent{BearAI{}});
+        return;
+    }
+    if (engine.wasKeyPressed(sf::Keyboard::Return)) {
+        db.makeComponent(player, AIComponent{PlayerAI{make_bear}});
+        db.makeComponent(player, LockInput{});
+        {
+            auto la = player.get<LookAt>();
+            if (la) {
+                db.eraseComponent(la.id());
+            }
+        }
+        db.eraseEntity(me);
+        return;
+    }
+    if (engine.wasKeyPressed(sf::Keyboard::Space)) {
+        auto slash = db.makeEntity();
+        db.makeComponent(slash, BoundingBox{{bb.rect.left+(anim.flipped?-1:1)*bb.rect.width,bb.rect.top,16,32}});
+        db.makeComponent(slash, PainBox{PainBox::Team::PLAYER});
+        db.makeComponent(slash, TimerComponent{[&db,slash]{db.eraseEntity(slash);},0.10});
+    }
+}

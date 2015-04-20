@@ -130,6 +130,21 @@ void MainGame::load(Json::Value json) {
     {
         Sprite goomba_sprite = terrasprites[17];
 
+        BoundingBox goomba_bb{{750, 200, sprW, sprH}};
+        Velocity goomba_vel{};
+        GoombaAI goombaBrain{};
+        AIComponent goomba_ai(goombaBrain);
+
+        EntID goomba = entities.makeEntity();
+        entities.makeComponent(goomba, goomba_sprite);
+        entities.makeComponent(goomba, goomba_bb);
+        entities.makeComponent(goomba, goomba_vel);
+        entities.makeComponent(goomba, goomba_ai);
+        entities.makeComponent(goomba, Enemy{});
+    }
+    {
+        Sprite goomba_sprite = terrasprites[1];
+
         BoundingBox goomba_bb{{700, 200, sprW, sprH}};
         Velocity goomba_vel{};
         GoombaAI goombaBrain{};
@@ -142,6 +157,22 @@ void MainGame::load(Json::Value json) {
         entities.makeComponent(goomba, goomba_ai);
         entities.makeComponent(goomba, Enemy{});
     }
+    {
+        Sprite goomba_sprite = terrasprites[32];
+
+        BoundingBox goomba_bb{{500, 200, sprW, sprH}};
+        Velocity goomba_vel{};
+        GoombaAI goombaBrain{};
+        AIComponent goomba_ai(goombaBrain);
+
+        EntID goomba = entities.makeEntity();
+        entities.makeComponent(goomba, goomba_sprite);
+        entities.makeComponent(goomba, goomba_bb);
+        entities.makeComponent(goomba, goomba_vel);
+        entities.makeComponent(goomba, goomba_ai);
+        entities.makeComponent(goomba, Enemy{});
+    }
+
 }
 
 bool MainGame::halts_update() const {

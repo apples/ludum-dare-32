@@ -117,11 +117,9 @@ struct BearAI {
             if (hitWall && onFloor)
                 vel.timed_accs.push_back({{0, -60000}, 0.015});
             if (targetX < myX + width && -vel.vel.x < maxVel)
-                vel.acc.x -= 2000;
+                vel.acc.x -= 1000;
             if (targetX > myX - width && vel.vel.x < maxVel)
-                vel.acc.x += 2000;
-            if (!onFloor)
-                vel.acc.y += 4000;
+                vel.acc.x += 1000;
             if (distance < 16) {
                 auto slash = db.makeEntity();
                 db.makeComponent(slash, BoundingBox{{bb.rect.left+(anim.flipped?-1:1)*bb.rect.width,bb.rect.top, 16, 32}});

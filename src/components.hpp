@@ -13,6 +13,7 @@ struct Position {
 struct Velocity {
     sf::Vector2f acc;
     sf::Vector2f vel;
+    std::vector<std::pair<sf::Vector2f,double>> timed_accs;
 };
 
 struct Player {

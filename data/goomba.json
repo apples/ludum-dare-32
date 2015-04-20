@@ -1,0 +1,12 @@
+{
+  "spritesheet": "goomba",
+  "width": 32,
+  "height": 32,
+  "walk": {
+    "frames": [
+      { "row": 0, "col": 0 },
+      { "row": 0, "col": 1 }
+    ],
+    "frameTime": 0.3
+  }
+}

@@ -88,7 +88,7 @@ void MainGame::load(Json::Value json) {
         }
         y += sprH;
     }
-    {
+     {
         Sprite player_sprite;
         animations = loadAnimation("player.json", texcache);
         player_sprite.spr.setAnimation(animations.at("walk"));
@@ -125,6 +125,37 @@ void MainGame::load(Json::Value json) {
         entities.makeComponent(player, player_vel);
         entities.makeComponent(player, player_ai);
     }
+
+   {
+        Sprite bear_sprite = terrasprites[33];
+
+        BoundingBox bear_bb{{300, 40, sprW, sprH}};
+        Velocity bear_vel{{50, 0}};
+        BearAI bearBrain(&entities);
+        AIComponent bear_ai(bearBrain);
+
+        EntID bear = entities.makeEntity();
+        entities.makeComponent(bear, bear_sprite);
+        entities.makeComponent(bear, bear_bb);
+        entities.makeComponent(bear, bear_vel);
+        entities.makeComponent(bear, bear_ai);
+    }
+    {
+        Sprite goomba_sprite = terrasprites[17];
+
+        BoundingBox goomba_bb{{600, 200, sprW, sprH}};
+        Velocity goomba_vel{{50, 0}};
+        GoombaAI goombaBrain(&entities);
+        AIComponent goomba_ai(goombaBrain);
+
+        EntID goomba = entities.makeEntity();
+        entities.makeComponent(goomba, goomba_sprite);
+        entities.makeComponent(goomba, goomba_bb);
+        entities.makeComponent(goomba, goomba_vel);
+        entities.makeComponent(goomba, goomba_ai);
+        entities.makeComponent(goomba, Enemy{});
+    }
+
 }
 
 bool MainGame::halts_update() const {

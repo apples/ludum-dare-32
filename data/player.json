@@ -16,5 +16,12 @@
       { "row": 0, "col": 0}
     ],
     "frameTime": -1
+  },
+  "hurt": {
+    "frames": [
+      { "row": 2, "col": 0 },
+      { "row": 2, "col": 1 }
+    ],
+    "frameTime": 0.2
   }
 }

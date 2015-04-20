@@ -33,24 +33,24 @@ void updateTimers(DB & db, double timeStep) {
 } // end updateTimers
 
 GraphicsSandbox::GraphicsSandbox() {
+    /*
     if (!tileTex.loadFromFile("data/Brick.png")) {
         throw std::runtime_error("Failed to load data/Brick.png");
     }
     if (!playerTex.loadFromFile("data/girl.png")) {
         throw std::runtime_error("Failed to load data/girl.png");
     }
-
+    */
     texCache = TextureCache("data/textures.json");
 
-
-    animations = loadAnimation("player.json", texCache);
+    animations = loadAnimation("goomba.json", texCache);
 
     playerAnimSpr.setAnimation(animations["walk"]);
     playerAnimSpr.setFrameTime(sf::seconds(0.25f));
     playerAnimSpr.setLooped(true);
     playerAnimSpr.setScale(5.f, 5.f);
 
-    sf::Vector2f tileSize = sf::Vector2f(tileTex.getSize());
+    sf::Vector2f tileSize = sf::Vector2f(texCache.get("brick").getSize());
 
     for (int i = 0; i < 50; i++) {
         for (int j = 0; j < 50; j++) {

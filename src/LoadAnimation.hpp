@@ -17,7 +17,7 @@
 
 inline std::map<std::string, Animation> loadAnimation(std::string jsonFileName, TextureCache& texCache) {
     Json::Value json;
-    std::ifstream file("data/player.json");
+    std::ifstream file("data/"+jsonFileName);
     file >> json;
 
     std::map<std::string, Animation> rv;

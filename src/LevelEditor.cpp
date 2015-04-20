@@ -4,6 +4,7 @@
 
 #include "LevelEditor.hpp"
 #include "echo.hpp"
+#include "MainGame.hpp"
 
 #include "Engine.hpp"
 
@@ -112,6 +113,13 @@ void LevelEditor::update(Engine &engine, double time_step) {
         }
     }
 
+    if (engine.wasKeyPressed(sf::Keyboard::Numpad4)) {
+        json["width"] = json["width"].asInt() - 1;
+        for (auto r = 0; r<json["height"].asInt(); ++r) {
+            json["rows"][r].resize(json["width"].asInt());
+        }
+    }
+
     if (engine.wasKeyPressed(sf::Keyboard::Numpad2)) {
         json["height"] = json["height"].asInt() + 1;
         Json::Value a_row;
@@ -119,6 +127,11 @@ void LevelEditor::update(Engine &engine, double time_step) {
             a_row.append(active_tile);
         }
         json["rows"].append(a_row);
+    }
+
+    if (engine.wasKeyPressed(sf::Keyboard::Numpad8)) {
+        json["height"] = json["height"].asInt() - 1;
+        json["rows"].resize(json["height"].asInt());
     }
 
     if (engine.wasKeyPressed(sf::Keyboard::Add)) {
@@ -137,6 +150,23 @@ void LevelEditor::update(Engine &engine, double time_step) {
         active_tile = 255;
     }
 
+    sf::Vector2f delta(0, 0);
+
+    if (engine.isKeyDown(sf::Keyboard::W) || engine.isKeyDown(sf::Keyboard::Up)) {
+        --delta.y;
+    }
+    if (engine.isKeyDown(sf::Keyboard::S) || engine.isKeyDown(sf::Keyboard::Down)) {
+        ++delta.y;
+    }
+    if (engine.isKeyDown(sf::Keyboard::A) || engine.isKeyDown(sf::Keyboard::Left)) {
+        --delta.x;
+    }
+    if (engine.isKeyDown(sf::Keyboard::D) || engine.isKeyDown(sf::Keyboard::Right)) {
+        ++delta.x;
+    }
+
+    camoffset -= (delta * 10.f);
+
     if (engine.wasKeyPressed(sf::Keyboard::F2)) {
         saver = std::make_shared<LevelEditorSave>("SAVE");
         saver->fname = fname;
@@ -147,6 +177,10 @@ void LevelEditor::update(Engine &engine, double time_step) {
         loader = std::make_shared<LevelEditorSave>("LOAD");
         loader->fname = fname;
         engine.states.push(loader);
+    }
+
+    if (engine.wasKeyPressed(sf::Keyboard::F5)) {
+        engine.states.push(std::make_shared<MainGame>(json));
     }
 
     if (engine.wasKeyPressed(sf::Keyboard::Escape)) {
@@ -161,11 +195,19 @@ void LevelEditor::draw(sf::RenderWindow &window) const {
     auto sprW = tsz.x/16;
     auto sprH = tsz.y/16;
     sprite.setTexture(tex);
+    {
+        sf::RectangleShape rect (sf::Vector2f(json["width"].asInt()*sprW,json["height"].asInt()*sprH));
+        rect.setPosition(camoffset);
+        rect.setFillColor(sf::Color::Transparent);
+        rect.setOutlineColor(sf::Color::Magenta);
+        rect.setOutlineThickness(5.0);
+        window.draw(rect);
+    }
     for (auto r = 0; r<json["height"].asInt(); ++r) {
         for (auto c = 0; c<json["width"].asInt(); ++c) {
             auto val = json["rows"][r][c].asInt();
             if (val > 0) {
-                sprite.setPosition(c * sprW, r * sprH);
+                sprite.setPosition(c * sprW + camoffset.x, r * sprH + camoffset.y);
                 auto quot = val / 16;
                 auto rem = val % 16;
                 sprite.setTextureRect(sf::IntRect(rem * sprW, quot * sprH, sprW, sprH));

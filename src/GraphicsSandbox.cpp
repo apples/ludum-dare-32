@@ -36,14 +36,14 @@ GraphicsSandbox::GraphicsSandbox() {
     if (!tileTex.loadFromFile("data/Brick.png")) {
         throw std::runtime_error("Failed to load data/Brick.png");
     }
-    if (!playerTex.loadFromFile("data/girl.png")) {
-        throw std::runtime_error("Failed to load data/girl.png");
+    if (!playerTex.loadFromFile("data/Goomba.png")) {
+        throw std::runtime_error("Failed to load data/Goomba.png");
     }
 
     texCache = TextureCache("data/textures.json");
 
 
-    animations = loadAnimation("player.json", texCache);
+    animations = loadAnimation("goomba.json", texCache);
 
     playerAnimSpr.setAnimation(animations["walk"]);
     playerAnimSpr.setFrameTime(sf::seconds(0.25f));

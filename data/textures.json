@@ -1,5 +1,6 @@
 {
   "terrain": "ToyBox.png",
   "player": "girl.png",
-  "brick": "Brick.png"
+  "brick": "Brick.png",
+  "goomba": "Goomba.png"
 }

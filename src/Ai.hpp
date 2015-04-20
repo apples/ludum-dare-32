@@ -11,10 +11,13 @@
 #include <functional>
 #include <string>
 #include <cstdlib>
+#include <memory>
+#include <cmath>
 
 using components::BoundingBox;
 using components::Sprite;
 using components::Velocity;
+using components::Enemy;
 
 class Engine;
 
@@ -70,6 +73,80 @@ struct PlayerAI {
     void operator()(EntID, AIComponent &);
 }; // end PlayerAI
 #endif
+
+struct BearAI {
+    DB *database;
+    bool hitLeftRight;
+    bool hitDown;
+    bool shouldJump;
+    double maxVel;
+
+    BearAI(DB *input_db) {
+        database = input_db;
+        maxVel = 2000;
+    };
+
+    void operator()(Engine& engine, EntID me, AIComponent& myAi) {
+        auto& vel = me.get<Velocity>().data();
+        auto colinfo = me.get<CollisionData>();
+        std::unique_ptr<EntID> target;
+        double distance = 500;
+        double tmpDist;
+        double myX, myY, enemyX, enemyY, targetX, targetY;
+
+        hitLeftRight = false;
+        hitDown = false;
+
+        auto enemies = database->query<Enemy>();
+        
+        myX = me.get<BoundingBox>().data().rect.left;
+        myY = me.get<BoundingBox>().data().rect.top;
+
+        for (auto & ent : enemies) {
+            enemyX = std::get<0>(ent).get<BoundingBox>().data().rect.left;
+            enemyY = std::get<0>(ent).get<BoundingBox>().data().rect.top;
+
+            tmpDist = sqrt((enemyX - myX) * (enemyX - myX) + (enemyY - myY) * (enemyY - myY));
+
+            if (tmpDist < distance) {
+                distance = tmpDist;
+                target = std::make_unique<EntID>(std::get<0>(ent));
+                targetX = enemyX;
+                targetY = enemyY;
+            } // end if
+        } // end for
+
+        if (colinfo) {
+            auto& coldata = colinfo.data();
+
+            for (auto& hit : coldata.hits) {
+                if (hit.dir == CollisionData::HitDir::RIGHT || hit.dir == CollisionData::HitDir::LEFT)
+                    hitLeftRight = true;
+                if (hit.dir == CollisionData::HitDir::DOWN)
+                    hitDown = true;
+            } // end for
+        } // end if
+
+        if (!target) {
+            if (hitLeftRight)
+                vel.acc.y -= 40000;
+            if (targetX < myX && -vel.vel.x < maxVel)
+                vel.acc.x -= 2000;
+            if (targetX > myX && vel.vel.x < maxVel)
+                vel.acc.x += 2000;
+            if (!hitDown)
+                vel.acc.y += 4000;
+        } // end if
+
+        else {
+            vel.vel.x = 0;
+            vel.vel.y = 0;
+        } // end else
+                
+    } // end operator()
+}; // end BearAI
+    
+
 struct GoombaAI {
     bool movingRight;
     bool hitLeftRight;

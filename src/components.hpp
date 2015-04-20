@@ -33,6 +33,9 @@ struct BoundingBox {
 struct Solid {
 };
 
+struct Enemy {
+};
+
 } // namespace components
 
 #include "components/ai.hpp"

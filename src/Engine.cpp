@@ -26,35 +26,31 @@ void Engine::go() {
 
 void Engine::poll_events() {
     sf::Event event;
+    keyBuffer.clear();
     while (window.pollEvent(event)) {
         switch (event.type) {
             case sf::Event::Closed:
                 window.close();
                 break;
             case sf::Event::KeyPressed:
+                keyBuffer.push_back(event.key);
                 keyboard[event.key.code].last_pressed = current_tick;
-                ECHO("Key pressed:", event.key.code);
                 break;
             case sf::Event::KeyReleased:
                 keyboard[event.key.code].last_released = current_tick;
-                ECHO("Key released:", event.key.code);
                 break;
 			case sf::Event::MouseButtonPressed:
 				mouseButtons[event.mouseButton.button].last_pressed = current_tick;
-				ECHO("Mouse Button pressed:", event.mouseButton.button);
 				break;
 			case sf::Event::MouseButtonReleased:
 			    mouseButtons[event.mouseButton.button].last_released = current_tick;
-                ECHO("Mouse Button released:", event.mouseButton.button);
                 break;
             case sf::Event::MouseWheelMoved:
                 mousePosition.wheel += event.mouseWheel.delta;
-                ECHO("Mouse Wheel moved:", event.mouseWheel.delta);
                 break;
             case sf::Event::MouseMoved:
                 mousePosition.x = event.mouseMove.x;
                 mousePosition.y = event.mouseMove.y;
-                ECHO("Mouse moved - x:", event.mouseMove.x, "y:", event.mouseMove.y);
                 break;
 
         }

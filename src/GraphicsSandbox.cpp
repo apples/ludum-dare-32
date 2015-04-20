@@ -34,6 +34,21 @@ GraphicsSandbox::GraphicsSandbox() {
     if (!tileTex.loadFromFile("data/Brick.png")) {
         throw std::runtime_error("Failed to load data/Brick.png");
     }
+    if (!playerTex.loadFromFile("data/girl.png")) {
+        throw std::runtime_error("Failed to load data/girl.png");
+    }
+
+    sf::Vector2i frameSize(32, 64);
+    playerAnim.addFrame(sf::IntRect(sf::Vector2i(frameSize.x * 0, frameSize.y * 1), frameSize));
+    playerAnim.addFrame(sf::IntRect(sf::Vector2i(frameSize.x * 1, frameSize.y * 1), frameSize));
+    playerAnim.addFrame(sf::IntRect(sf::Vector2i(frameSize.x * 2, frameSize.y * 1), frameSize));
+    playerAnim.addFrame(sf::IntRect(sf::Vector2i(frameSize.x * 3, frameSize.y * 1), frameSize));
+    playerAnim.setSpriteSheet(playerTex);
+
+    playerAnimSpr.setAnimation(playerAnim);
+    playerAnimSpr.setFrameTime(sf::seconds(0.25f));
+    playerAnimSpr.setLooped(true);
+    playerAnimSpr.setScale(5.f, 5.f);
 
     sf::Vector2f tileSize = sf::Vector2f(tileTex.getSize());
 
@@ -84,9 +99,12 @@ void GraphicsSandbox::update(Engine &engine, double time_step) {
     }
 
     cam.move(delta * 10.f);
+
+    playerAnimSpr.update(sf::seconds(time_step));
 }
 
 void GraphicsSandbox::draw(sf::RenderWindow &window) const {
     window.clear(sf::Color::Magenta);
     cam.draw(window, db);
+    window.draw(playerAnimSpr);
 }

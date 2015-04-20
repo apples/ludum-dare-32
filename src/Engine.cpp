@@ -6,6 +6,7 @@
 
 #include "TitleScreen.hpp"
 #include "MainGame.hpp"
+#include<string>
 
 Engine::Engine() {
     window.create(sf::VideoMode(800,600),"Toy Box Escape");
@@ -59,6 +60,7 @@ void Engine::poll_events() {
 
 void Engine::update() {
     double time_step = clock.getElapsedTime().asSeconds();
+	window.setTitle("toybox escape-- fps: " + std::to_string(time_step));
     clock.restart();
     states.update(*this, time_step);
 }

@@ -2,5 +2,7 @@
   "terrain": "ToyBox.png",
   "player": "girl.png",
   "brick": "Brick.png",
-  "goomba": "Goomba.png"
+  "goomba": "Goomba.png",
+  "bear": "bear.png",
+  "poof": "poof.png"
 }

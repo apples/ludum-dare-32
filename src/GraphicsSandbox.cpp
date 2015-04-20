@@ -43,10 +43,10 @@ GraphicsSandbox::GraphicsSandbox() {
     */
     texCache = TextureCache("data/textures.json");
 
-    animations = loadAnimation("goomba.json", texCache);
+    animations = loadAnimation("poof.json", texCache);
 
-    playerAnimSpr.setAnimation(animations["walk"]);
-    playerAnimSpr.setFrameTime(sf::seconds(0.25f));
+    playerAnimSpr.setAnimation(animations["poof"]);
+    playerAnimSpr.setFrameTime(sf::seconds(0.2f));
     playerAnimSpr.setLooped(true);
     playerAnimSpr.setScale(5.f, 5.f);
 

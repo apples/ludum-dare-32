@@ -1,0 +1,43 @@
+{
+  "spritesheet": "bear",
+  "width": 32,
+  "height": 32,
+  "stand": {
+    "frames": [
+      { "row": 0, "col": 0 }
+    ],
+    "frameTime": -1
+  },
+  "walk": {
+    "frames": [
+      { "row": 1, "col": 0 },
+      { "row": 1, "col": 1 },
+      { "row": 1, "col": 2 },
+      { "row": 1, "col": 3 }
+    ],
+    "frameTime": 0.25
+  },
+  "attack": {
+    "frames": [
+      { "row": 2, "col": 0 }
+    ],
+    "frameTime": -1
+  },
+  "hurt": {
+    "frames": [
+	  { "row": 3, "col": 0 },
+	  { "row": 3, "col": 1 }
+	],
+	"frameTime": 0.05
+  },
+  "die": {
+    "frames": [
+	  { "row": 4, "col": 0 },
+	  { "row": 4, "col": 1 },
+	  { "row": 4, "col": 2 },
+	  { "row": 4, "col": 3 },
+	  { "row": 4, "col": 4 }
+	],
+	"frameTime": 0.2
+  }
+}

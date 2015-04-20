@@ -105,7 +105,8 @@ LevelEditor::LevelEditor() {
             json["rows"][i][j] = (i + j) % 2;
         }
     }
-    //ECHO(json);
+    json["player_spawn"]["row"] = 3;
+    json["player_spawn"]["col"] = 3;
 }
 
 bool LevelEditor::halts_update() const {
@@ -143,14 +144,25 @@ void LevelEditor::update(Engine &engine, double time_step) {
         int tx = (engine.getMousePosition().x - camoffset.x) / sprW;
         int ty = (engine.getMousePosition().y - camoffset.y) / sprH;
         if (tx >= 0 && tx < json["width"].asInt() && ty >= 0 && ty < json["height"].asInt()) {
-            json["rows"][ty][tx] = active_tile;
+            if (active_tile%16<8||active_tile/16<14) {
+                json["rows"][ty][tx] = active_tile;
+                ECHO("A",active_tile);
+            } else {
+                ECHO("B",active_tile);
+                switch (active_tile) {
+                    case 255:
+                        json["player_spawn"]["row"] = ty;
+                        json["player_spawn"]["col"] = tx;
+                        break;
+                }
+            }
         }
     }
 
     if (engine.wasKeyPressed(sf::Keyboard::Numpad6)) {
         json["width"] = json["width"].asInt() + 1;
         for (auto r = 0; r < json["height"].asInt(); ++r) {
-            json["rows"][r].append(active_tile);
+            json["rows"][r].append((active_tile%16<8||active_tile/16<14)?active_tile:0);
         }
     }
 
@@ -165,7 +177,7 @@ void LevelEditor::update(Engine &engine, double time_step) {
         json["height"] = json["height"].asInt() + 1;
         Json::Value a_row;
         for (auto i = 0; i < json["width"].asInt(); ++i) {
-            a_row.append(active_tile);
+            a_row.append((active_tile%16<8||active_tile/16<14)?active_tile:0);
         }
         json["rows"].append(a_row);
     }
@@ -260,6 +272,17 @@ void LevelEditor::draw(sf::RenderWindow &window) const {
             }
         }
     }
+
+    {
+        auto r = json["player_spawn"]["row"].asInt();
+        auto c = json["player_spawn"]["col"].asInt();
+        sprite.setPosition(c * sprW + camoffset.x, r * sprH + camoffset.y);
+        auto quot = 15;
+        auto rem = 15;
+        sprite.setTextureRect(sf::IntRect(rem * sprW, quot * sprH, sprW, sprH));
+        window.draw(sprite);
+    }
+
     sf::Text text(std::to_string(active_tile), font);
     sf::RectangleShape rect(sf::Vector2f(text.getGlobalBounds().width, text.getGlobalBounds().height + 20));
     text.setPosition(0, 0);

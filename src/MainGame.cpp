@@ -66,9 +66,9 @@ void MainGame::load(Json::Value json) {
     auto width = json["width"].asInt();
     auto height = json["height"].asInt();
 
-    auto y = sprH / 2.f;
+    auto y = 0.f;
     for (auto& row : json["rows"]) {
-        auto x = sprW / 2.f;
+        auto x = 0.f;
         for (auto& tile : row) {
             auto t = tile.asInt();
             if (t > 0) {
@@ -94,9 +94,10 @@ void MainGame::load(Json::Value json) {
         player_sprite.spr.setFrameTime(sf::seconds(0.25f));
         player_sprite.spr.setLooped(true);
         player_sprite.spr.update(sf::seconds(1));
+        player_sprite.layer = 0;
 
-        BoundingBox player_bb{{64, 64 + 32, sprW, sprH*2}};
-        Velocity player_vel{{50, 0}};
+        BoundingBox player_bb{{json["player_spawn"]["col"].asInt()*sprW, json["player_spawn"]["col"].asInt()*sprH, sprW, sprH*2}};
+        Velocity player_vel{};
         AIComponent player_ai{[](Engine& engine, EntID me, AIComponent& my_ai) {
             auto& vel = me.get<Velocity>().data();
             if (engine.isKeyDown(sf::Keyboard::Left) || engine.isKeyDown(sf::Keyboard::A)) {

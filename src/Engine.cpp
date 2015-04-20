@@ -26,12 +26,14 @@ void Engine::go() {
 
 void Engine::poll_events() {
     sf::Event event;
+    keyBuffer.clear();
     while (window.pollEvent(event)) {
         switch (event.type) {
             case sf::Event::Closed:
                 window.close();
                 break;
             case sf::Event::KeyPressed:
+                keyBuffer.push_back(event.key);
                 keyboard[event.key.code].last_pressed = current_tick;
                 ECHO("Key pressed:", event.key.code);
                 break;

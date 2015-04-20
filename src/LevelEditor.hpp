@@ -10,9 +10,24 @@
 
 #include <json/json.h>
 
+#include <memory>
+
+class LevelEditorSave : public GameState {
+    sf::Font font;
+public:
+    std::string fname = "";
+    LevelEditorSave();
+    virtual bool halts_update() const override;
+    virtual bool halts_draw() const override;
+    virtual void update(Engine &engine, double time_step) override;
+    virtual void draw(sf::RenderWindow &window) const override;
+};
+
 class LevelEditor : public GameState {
     Json::Value json;
     TextureCache textures = TextureCache("data/textures.json");
+
+    std::shared_ptr<LevelEditorSave> saver;
 public:
     LevelEditor();
 
@@ -20,6 +35,8 @@ public:
     virtual bool halts_draw() const override;
     virtual void update(Engine &engine, double time_step) override;
     virtual void draw(sf::RenderWindow &window) const override;
+
+    int active_tile = 1;
 };
 
 

@@ -38,6 +38,8 @@ class Engine {
 	std::vector<MouseButtonState> mouseButtons = std::vector<MouseButtonState>(sf::Mouse::ButtonCount);
     MousePosition mousePosition;
 
+    std::vector<sf::Event::KeyEvent> keyBuffer;
+
     void poll_events();
     void update();
     void draw();
@@ -58,6 +60,10 @@ public:
 
     const MousePosition& getMousePosition() const {
         return mousePosition;
+    }
+
+    const std::vector<sf::Event::KeyEvent>& getKeyBuffer() const {
+        return keyBuffer;
     }
 
     sf::RenderWindow window;

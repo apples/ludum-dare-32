@@ -14,10 +14,10 @@ using namespace components;
 GraphicsSandbox::GraphicsSandbox() {
     texCache = TextureCache("data/textures.json");
 
-    animations = loadAnimation("poof.json", texCache);
+    animations = loadAnimation("player.json", texCache);
 
-    playerAnimSpr.setAnimation(animations["poof"]);
-    playerAnimSpr.setFrameTime(sf::seconds(0.2f));
+    playerAnimSpr.setAnimation(animations["die"]);
+    playerAnimSpr.setFrameTime(sf::seconds(0.4f));
     playerAnimSpr.setLooped(true);
     playerAnimSpr.setScale(5.f, 5.f);
 

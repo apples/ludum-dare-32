@@ -104,7 +104,7 @@ void physics_step(DB& db, double timeStep) {
                             get_axis(v_bb.rect) += get_axis.len(isect);
                         }
                         get_axis(v_vel.vel) = 0;
-                        get_axis.other(v_vel.vel) *= 0.95;
+                        get_axis.other(v_vel.vel) *= float(0.90*(1.0-timeStep));
                     }
 
                     auto bb_coll_info = bb_eid.get<CollisionData>();

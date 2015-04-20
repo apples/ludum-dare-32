@@ -12,14 +12,6 @@
 using namespace components;
 
 GraphicsSandbox::GraphicsSandbox() {
-    /*
-    if (!tileTex.loadFromFile("data/Brick.png")) {
-        throw std::runtime_error("Failed to load data/Brick.png");
-    }
-    if (!playerTex.loadFromFile("data/girl.png")) {
-        throw std::runtime_error("Failed to load data/girl.png");
-    }
-    */
     texCache = TextureCache("data/textures.json");
 
     animations = loadAnimation("goomba.json", texCache);
@@ -80,6 +72,10 @@ void GraphicsSandbox::update(Engine &engine, double time_step) {
     cam.move(delta * 10.f);
 
     playerAnimSpr.update(sf::seconds(time_step));
+
+    if (engine.music.getCurrentSong() == "partA") {
+        engine.music.setNextSong("bossFight");
+    }
 }
 
 void GraphicsSandbox::draw(sf::RenderWindow &window) const {

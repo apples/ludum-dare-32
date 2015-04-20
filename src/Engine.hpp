@@ -7,6 +7,7 @@
 
 #include "echo.hpp"
 #include "GameStateStack.hpp"
+#include "MusicComponent.hpp"
 
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
@@ -29,7 +30,6 @@ class Engine {
         int y;
         int wheel = 0;
     };
-
 
     sf::Clock clock;
 
@@ -69,6 +69,8 @@ public:
     sf::RenderWindow window;
 
     GameStateStack states;
+
+    MusicComponent music;
 };
 
 

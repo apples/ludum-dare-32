@@ -16,6 +16,9 @@ Engine::Engine() {
 
 void Engine::go() {
     states.push(std::make_shared<TitleScreen>());
+    music.loadJson("music.json");
+    music.setNextSong("intro");
+    music.setNextSong("partA");
     clock.restart();
     while (window.isOpen() && !states.empty()) {
         ++current_tick;
@@ -61,6 +64,7 @@ void Engine::poll_events() {
 void Engine::update() {
     double time_step = clock.getElapsedTime().asSeconds();
 	window.setTitle("Toy Box Escape-- fps: " + std::to_string(int(1 / time_step)));
+    music.update();
     clock.restart();
     states.update(*this, time_step);
 }

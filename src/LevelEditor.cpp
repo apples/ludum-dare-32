@@ -53,6 +53,46 @@ void LevelEditorSave::draw(sf::RenderWindow &window) const {
     window.draw(text);
 }
 
+LevelEditorPick::LevelEditorPick(int* active_tile, const sf::Texture* tex) : active_tile(active_tile), tex(tex) {}
+
+bool LevelEditorPick::halts_update() const {
+    return true;
+}
+
+bool LevelEditorPick::halts_draw() const {
+    return false;
+}
+
+void LevelEditorPick::update(Engine& engine, double time_step) {
+    if (engine.wasMouseButtonPressed(sf::Mouse::Left)) {
+        auto tsz = sf::Vector2f(tex->getSize());
+        auto sprW = tsz.x / 16;
+        auto sprH = tsz.y / 16;
+        auto texorig = sf::Vector2f(400,300)-tsz/2.f;
+        int tx = (engine.getMousePosition().x - texorig.x) / sprW;
+        int ty = (engine.getMousePosition().y - texorig.y) / sprH;
+        if (tx >= 0 && tx < 16 && ty >= 0 && ty < 16) {
+            *active_tile = ty*16+tx;
+            return engine.states.pop();
+        }
+    }
+
+    if (engine.wasKeyPressed(sf::Keyboard::Escape) || engine.wasKeyPressed(sf::Keyboard::Space)) {
+        return engine.states.pop();
+    }
+}
+
+void LevelEditorPick::draw(sf::RenderWindow& window) const {
+    sf::RectangleShape rect;
+    sf::Sprite spr (*tex);
+    auto texsz = sf::Vector2f(tex->getSize());
+    spr.setPosition(sf::Vector2f(400,300)-texsz/2.f);
+    rect.setSize(texsz*1.125f);
+    rect.setPosition(sf::Vector2f(400,300)-texsz*1.125f/2.f);
+    rect.setFillColor(sf::Color(0,0,0,128));
+    window.draw(rect);
+    window.draw(spr);
+}
 
 LevelEditor::LevelEditor() {
     font.loadFromFile("data/OFLGoudyStM.otf");
@@ -182,6 +222,10 @@ void LevelEditor::update(Engine &engine, double time_step) {
 
     if (engine.wasKeyPressed(sf::Keyboard::F5)) {
         engine.states.push(std::make_shared<MainGame>(json));
+    }
+
+    if (engine.wasKeyPressed(sf::Keyboard::Space)) {
+        engine.states.push(std::make_shared<LevelEditorPick>(&active_tile, &textures.get("terrain")));
     }
 
     if (engine.wasKeyPressed(sf::Keyboard::Escape)) {

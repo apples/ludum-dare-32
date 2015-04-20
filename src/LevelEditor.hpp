@@ -20,8 +20,19 @@ public:
     LevelEditorSave(std::string prompt);
     virtual bool halts_update() const override;
     virtual bool halts_draw() const override;
-    virtual void update(Engine &engine, double time_step) override;
-    virtual void draw(sf::RenderWindow &window) const override;
+    virtual void update(Engine& engine, double time_step) override;
+    virtual void draw(sf::RenderWindow& window) const override;
+};
+
+class LevelEditorPick : public GameState {
+    int* active_tile = nullptr;
+    const sf::Texture* tex = nullptr;
+public:
+    LevelEditorPick(int* active_tile, const sf::Texture* tex);
+    virtual bool halts_update() const override;
+    virtual bool halts_draw() const override;
+    virtual void update(Engine& engine, double time_step) override;
+    virtual void draw(sf::RenderWindow& window) const override;
 };
 
 class LevelEditor : public GameState {
@@ -40,8 +51,8 @@ public:
 
     virtual bool halts_update() const override;
     virtual bool halts_draw() const override;
-    virtual void update(Engine &engine, double time_step) override;
-    virtual void draw(sf::RenderWindow &window) const override;
+    virtual void update(Engine& engine, double time_step) override;
+    virtual void draw(sf::RenderWindow& window) const override;
 
     int active_tile = 1;
 };

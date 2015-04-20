@@ -1,12 +1,12 @@
 cmake_minimum_required(VERSION 3.0)
 project(LudumDare32)
 
-find_package(SFML 2 REQUIRED window graphics system)
+find_package(SFML 2 REQUIRED window graphics system audio)
 find_package(jsoncpp REQUIRED)
 add_subdirectory(ginseng)
 
 file(GLOB_RECURSE sources src/*)
-add_executable(game ${sources} src/LoadAnimation.hpp)
+add_executable(game ${sources})
 set_property(TARGET game PROPERTY CXX_STANDARD 14)
 target_include_directories(game PRIVATE src/)
 target_include_directories(game PRIVATE ${SFML_INCLUDE_DIRS})

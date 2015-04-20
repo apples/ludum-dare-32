@@ -1,0 +1,45 @@
+{
+  "intro" : {
+    "filename" : "Intro.ogg",
+    "bpm" : -1,
+    "bars" : [
+      32.0
+    ],
+    "loop" : false
+  },
+  "partA" : {
+    "filename" : "PartA.ogg",
+    "bpm" : 84,
+    "bars" : [
+      2,
+      6,
+      10,
+      14,
+      16
+    ],
+    "loop" : true
+  },
+  "bossFight" : {
+    "filename" : "BossFight.ogg",
+    "bpm" : 84,
+    "bars" : [
+      4,
+      6,
+      10,
+      14
+    ],
+    "loop" : true
+  },
+  "endWin" : {
+    "filename" : "EndWin.ogg",
+    "bpm" : -1,
+    "bars" : [],
+    "loop" : false
+  },
+  "endLose" : {
+    "filename" : "EndLose.ogg",
+    "bpm" : -1,
+    "bars" : [],
+    "loop" : false
+  }
+}

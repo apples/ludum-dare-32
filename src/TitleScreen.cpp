@@ -7,6 +7,7 @@
 #include "MainGame.hpp"
 #include "LevelEditor.hpp"
 #include "GraphicsSandbox.hpp"
+#include "SoundPlayground.hpp"
 
 namespace {
 
@@ -31,6 +32,7 @@ TitleScreen::TitleScreen() {
     items.emplace_back(std::make_pair("Main Game", maker<MainGame>()));
     items.emplace_back(std::make_pair("Level Editor", maker<LevelEditor>()));
     items.emplace_back(std::make_pair("Graphics Sandbox", maker<GraphicsSandbox>()));
+    items.emplace_back(std::make_pair("Sound Playground", maker<SoundPlayground>()));
 
     selected = 0;
 }

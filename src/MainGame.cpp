@@ -20,17 +20,17 @@ using components::Velocity;
 
 MainGame::MainGame() {
     load_level("data/sandy.json");
-    cam.setSize(800,600);
+    cam.setSize(800, 600);
 }
 
 MainGame::MainGame(Json::Value json) {
     load(json);
-    cam.setSize(800,600);
+    cam.setSize(800, 600);
 }
 
 void MainGame::load_level(std::string fname) {
     Json::Value json;
-    std::ifstream file (fname.c_str());
+    std::ifstream file(fname.c_str());
     file >> json;
 
     load(json);
@@ -40,25 +40,25 @@ void MainGame::load(Json::Value json) {
     entities = DB{};
 
     auto& tex = texcache.get("terrain");
-    auto sprW = tex.getSize().x/16.0;
-    auto sprH = tex.getSize().y/16.0;
+    auto sprW = tex.getSize().x / 16.f;
+    auto sprH = tex.getSize().y / 16.f;
     std::vector<Sprite> terrasprites;
     terrasprites.reserve(256);
-    for (int i=0; i<256; ++i) {
-        Sprite sprite {tex,sf::IntRect((i%16)*sprW,(i/16)*sprH,sprW,sprH), 0};
+    for (int i = 0; i < 256; ++i) {
+        Sprite sprite{tex, sf::IntRect((i % 16) * sprW, (i / 16) * sprH, sprW, sprH), 0};
         terrasprites.push_back(sprite);
     }
 
     auto width = json["width"].asInt();
     auto height = json["height"].asInt();
 
-    auto y = sprH/2.0;
+    auto y = sprH / 2.f;
     for (auto& row : json["rows"]) {
-        auto x = sprW/2.0;
+        auto x = sprW / 2.f;
         for (auto& tile : row) {
             auto t = tile.asInt();
-            if (t>0) {
-                BoundingBox bb{{float(x), float(y), float(sprW), float(sprH)}};
+            if (t > 0) {
+                BoundingBox bb{{x, y, sprW, sprH}};
                 Sprite spr = terrasprites[t];
                 auto ent = entities.makeEntity();
                 entities.makeComponent(ent, bb);
@@ -71,9 +71,9 @@ void MainGame::load(Json::Value json) {
     }
     {
         Sprite player_sprite{tex, sf::IntRect(sprW, 0, sprW, sprH), 1};
-        BoundingBox player_bb{{64, 64+32, float(sprW), float(sprH)}};
+        BoundingBox player_bb{{64, 64 + 32, sprW, sprH}};
         Velocity player_vel{{50, 0}};
-        AIComponent player_ai {[](Engine& engine, EntID me, AIComponent& my_ai){
+        AIComponent player_ai{[](Engine& engine, EntID me, AIComponent& my_ai) {
             auto& vel = me.get<Velocity>().data();
             if (engine.isKeyDown(sf::Keyboard::Left) || engine.isKeyDown(sf::Keyboard::A)) {
                 vel.acc.x += -2000;
@@ -86,7 +86,7 @@ void MainGame::load(Json::Value json) {
             }
         }};
 
-        auto player = entities.makeEntity();
+        player = entities.makeEntity();
         entities.makeComponent(player, player_sprite);
         entities.makeComponent(player, player_bb);
         entities.makeComponent(player, player_vel);
@@ -102,15 +102,20 @@ bool MainGame::halts_draw() const {
     return true;
 }
 
-void MainGame::update(Engine &engine, double time_step) {
+void MainGame::update(Engine& engine, double time_step) {
     update_ais(engine, entities);
     physics_step(entities, time_step);
+
+    {
+        auto& playerbb = player.get<BoundingBox>().data().rect;
+        cam.setPosition(playerbb.left + playerbb.width / 2.0 - 400, playerbb.top + playerbb.height / 2.0 - 300);
+    }
 
     if (engine.wasKeyPressed(sf::Keyboard::Escape)) {
         engine.states.pop();
     }
 }
 
-void MainGame::draw(sf::RenderWindow &window) const {
+void MainGame::draw(sf::RenderWindow& window) const {
     cam.draw(window, entities);
 }

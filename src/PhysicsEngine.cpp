@@ -96,7 +96,8 @@ void physics_step(DB& db, double timeStep) {
                     continue;
 
                 sf::FloatRect isect;
-                if (v_bb.rect.intersects(bb.rect, isect)) {
+                sf::FloatRect bbsmall (bb.rect.left, bb.rect.top, bb.rect.width-0.5, bb.rect.height-0.5);
+                if (v_bb.rect.intersects(bbsmall, isect)) {
                     if (bb_eid.get<Solid>()) {
                         if (get_axis(v_bb.rect) < get_axis(bb.rect)) {
                             get_axis(v_bb.rect) -= get_axis.len(isect);

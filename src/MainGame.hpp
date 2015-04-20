@@ -18,6 +18,7 @@ class MainGame : public GameState {
     mutable DB entities;
     TextureCache texcache = TextureCache("data/textures.json");
     Camera cam;
+    EntID player;
 public:
     MainGame();
     MainGame(Json::Value json);

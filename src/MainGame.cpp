@@ -91,20 +91,20 @@ void MainGame::load(Json::Value json) {
     }
     {
         Sprite player_sprite;
-        animations = loadAnimation("player.json", texcache);
-        player_sprite.spr.setAnimation(animations.at("walk"));
+        animations.insert(make_pair("player", loadAnimation("player.json", texcache)));
+        player_sprite.spr.setAnimation(animations.at("player").at("walk"));
         player_sprite.spr.setFrameTime(sf::seconds(0.25f));
         player_sprite.spr.setLooped(true);
         player_sprite.spr.update(sf::seconds(1));
         player_sprite.layer = 0;
 
         BoundingBox player_bb{{json["player_spawn"]["col"].asInt() * sprW,
-                                      json["player_spawn"]["col"].asInt() * sprH, sprW, sprH * 2}};
+                               json["player_spawn"]["row"].asInt() * sprH, sprW, sprH * 2}};
         Velocity player_vel{};
         AIComponent player_ai{AIComponent{PlayerAI{[=](EntID peid) {
             auto pbb = peid.get<BoundingBox>().data().rect;
             Sprite bear_sprite;
-            auto bearanims = loadAnimation("player.json", texcache);
+            auto bearanims = loadAnimation("bear.json", texcache);
             bear_sprite.spr.setAnimation(bearanims.at("walk"));
             bear_sprite.spr.setFrameTime(sf::seconds(0.25f));
             bear_sprite.spr.setLooped(true);
@@ -128,7 +128,9 @@ void MainGame::load(Json::Value json) {
         entities.makeComponent(player, player_ai);
     }
     {
-        Sprite goomba_sprite = terrasprites[17];
+        Sprite goomba_sprite;
+        auto goombaanims = loadAnimation("goomba.json", texcache);
+        goomba_sprite.spr.setAnimation(goombaanims.at("walk"));
 
         BoundingBox goomba_bb{{750, 200, sprW, sprH}};
         Velocity goomba_vel{};
@@ -143,7 +145,9 @@ void MainGame::load(Json::Value json) {
         entities.makeComponent(goomba, Enemy{});
     }
     {
-        Sprite goomba_sprite = terrasprites[1];
+        Sprite goomba_sprite;
+        auto goombaanims = loadAnimation("goomba.json", texcache);
+        goomba_sprite.spr.setAnimation(goombaanims.at("walk"));
 
         BoundingBox goomba_bb{{700, 200, sprW, sprH}};
         Velocity goomba_vel{};
@@ -158,7 +162,9 @@ void MainGame::load(Json::Value json) {
         entities.makeComponent(goomba, Enemy{});
     }
     {
-        Sprite goomba_sprite = terrasprites[32];
+        Sprite goomba_sprite;
+        auto goombaanims = loadAnimation("goomba.json", texcache);
+        goomba_sprite.spr.setAnimation(goombaanims.at("walk"));
 
         BoundingBox goomba_bb{{500, 200, sprW, sprH}};
         Velocity goomba_vel{};
@@ -188,6 +194,7 @@ void MainGame::update(Engine& engine, double time_step) {
     physics_step(entities, time_step);
     update_sprites(entities, time_step);
     update_timers(entities, time_step);
+    update_animations();
 
     {
         auto lookat = player;
@@ -200,6 +207,19 @@ void MainGame::update(Engine& engine, double time_step) {
 
     if (engine.wasKeyPressed(sf::Keyboard::Escape)) {
         return engine.states.pop();
+    }
+}
+
+void MainGame::update_animations() {
+    using namespace components;
+    auto items = entities.query<AiStateComponent, Sprite>();
+
+    for (auto& ent : items) {
+        AiStateComponent ai = std::get<1>(ent).data();
+        Sprite spr = std::get<2>(ent).data();
+
+        spr.flipped = ai.flipped;
+        spr.spr.setAnimation(animations.at(ai.anim_group).at(ai.anim_name));
     }
 }
 

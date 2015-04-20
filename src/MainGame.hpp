@@ -17,7 +17,7 @@
 class MainGame : public GameState {
     mutable DB entities;
     TextureCache texcache = TextureCache("data/textures.json");
-    std::map<std::string, Animation> animations;
+    std::map<std::string, std::map<std::string, Animation>> animations;
     AnimatedSprite playerAnimSpr;
     Camera cam;
     EntID player;
@@ -37,6 +37,8 @@ public:
     virtual bool halts_draw() const override;
     virtual void update(Engine &engine, double time_step) override;
     virtual void draw(sf::RenderWindow &window) const override;
+
+    void update_animations();
 };
 
 

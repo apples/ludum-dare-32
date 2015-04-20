@@ -33,7 +33,7 @@ void LevelEditorSave::update(Engine &engine, double time_step) {
         if (event.code == sf::Keyboard::BackSpace) {
             fname.pop_back();
         } else if (event.code >= sf::Keyboard::A && event.code <= sf::Keyboard::Z) {
-            char c = (event.shift? 'A' : 'a');
+            char c = (event.shift ? 'A' : 'a');
             c += (event.code - sf::Keyboard::A);
             fname.push_back(c);
         }
@@ -45,11 +45,11 @@ void LevelEditorSave::update(Engine &engine, double time_step) {
 }
 
 void LevelEditorSave::draw(sf::RenderWindow &window) const {
-    sf::Text text (prompt+": [ "+fname+" ]", font);
+    sf::Text text(prompt + ": [ " + fname + " ]", font);
     auto tb = text.getLocalBounds();
-    text.setOrigin(tb.width/2.0, tb.height/2.0);
+    text.setOrigin(tb.width / 2.0, tb.height / 2.0);
     auto ws = window.getSize();
-    text.setPosition(ws.x/2.0, ws.y/2.0);
+    text.setPosition(ws.x / 2.0, ws.y / 2.0);
     window.draw(text);
 }
 
@@ -59,10 +59,10 @@ LevelEditor::LevelEditor() {
     json["width"] = 10;
     json["height"] = 10;
     json["rows"].resize(json["height"].asInt());
-    for (auto i = 0; i<json["height"].asInt(); ++i) {
+    for (auto i = 0; i < json["height"].asInt(); ++i) {
         json["rows"][i].resize(json["width"].asInt());
-        for (auto j = 0; j<json["width"].asInt(); ++j) {
-            json["rows"][i][j] = (i+j)%2;
+        for (auto j = 0; j < json["width"].asInt(); ++j) {
+            json["rows"][i][j] = (i + j) % 2;
         }
     }
     //ECHO(json);
@@ -94,28 +94,29 @@ void LevelEditor::update(Engine &engine, double time_step) {
         loader = {};
     }
 
-    if (engine.wasMouseButtonPressed(sf::Mouse::Left)) {
-        auto& tex = textures.get("terrain");
+    if (engine.wasMouseButtonPressed(sf::Mouse::Left) ||
+        (engine.isMouseButtonDown(sf::Mouse::Left) && engine.isKeyDown(sf::Keyboard::LShift))) {
+        auto &tex = textures.get("terrain");
         auto tsz = tex.getSize();
-        auto sprW = tsz.x/16;
-        auto sprH = tsz.y/16;
-        auto tx = engine.getMousePosition().x/sprW;
-        auto ty = engine.getMousePosition().y/sprH;
-        if (tx>=0 && tx<json["width"].asInt() && ty>=0 && ty<json["height"].asInt()) {
+        auto sprW = tsz.x / 16;
+        auto sprH = tsz.y / 16;
+        int tx = (engine.getMousePosition().x - camoffset.x) / sprW;
+        int ty = (engine.getMousePosition().y - camoffset.y) / sprH;
+        if (tx >= 0 && tx < json["width"].asInt() && ty >= 0 && ty < json["height"].asInt()) {
             json["rows"][ty][tx] = active_tile;
         }
     }
 
     if (engine.wasKeyPressed(sf::Keyboard::Numpad6)) {
         json["width"] = json["width"].asInt() + 1;
-        for (auto r = 0; r<json["height"].asInt(); ++r) {
+        for (auto r = 0; r < json["height"].asInt(); ++r) {
             json["rows"][r].append(active_tile);
         }
     }
 
     if (engine.wasKeyPressed(sf::Keyboard::Numpad4)) {
         json["width"] = json["width"].asInt() - 1;
-        for (auto r = 0; r<json["height"].asInt(); ++r) {
+        for (auto r = 0; r < json["height"].asInt(); ++r) {
             json["rows"][r].resize(json["width"].asInt());
         }
     }
@@ -123,7 +124,7 @@ void LevelEditor::update(Engine &engine, double time_step) {
     if (engine.wasKeyPressed(sf::Keyboard::Numpad2)) {
         json["height"] = json["height"].asInt() + 1;
         Json::Value a_row;
-        for (auto i=0; i<json["width"].asInt(); ++i) {
+        for (auto i = 0; i < json["width"].asInt(); ++i) {
             a_row.append(active_tile);
         }
         json["rows"].append(a_row);
@@ -190,21 +191,21 @@ void LevelEditor::update(Engine &engine, double time_step) {
 
 void LevelEditor::draw(sf::RenderWindow &window) const {
     sf::Sprite sprite;
-    auto& tex = textures.get("terrain");
+    auto &tex = textures.get("terrain");
     auto tsz = tex.getSize();
-    auto sprW = tsz.x/16;
-    auto sprH = tsz.y/16;
+    auto sprW = tsz.x / 16;
+    auto sprH = tsz.y / 16;
     sprite.setTexture(tex);
     {
-        sf::RectangleShape rect (sf::Vector2f(json["width"].asInt()*sprW,json["height"].asInt()*sprH));
+        sf::RectangleShape rect(sf::Vector2f(json["width"].asInt() * sprW, json["height"].asInt() * sprH));
         rect.setPosition(camoffset);
         rect.setFillColor(sf::Color::Transparent);
         rect.setOutlineColor(sf::Color::Magenta);
         rect.setOutlineThickness(5.0);
         window.draw(rect);
     }
-    for (auto r = 0; r<json["height"].asInt(); ++r) {
-        for (auto c = 0; c<json["width"].asInt(); ++c) {
+    for (auto r = 0; r < json["height"].asInt(); ++r) {
+        for (auto c = 0; c < json["width"].asInt(); ++c) {
             auto val = json["rows"][r][c].asInt();
             if (val > 0) {
                 sprite.setPosition(c * sprW + camoffset.x, r * sprH + camoffset.y);
@@ -215,12 +216,12 @@ void LevelEditor::draw(sf::RenderWindow &window) const {
             }
         }
     }
-    sf::Text text (std::to_string(active_tile), font);
-    sf::RectangleShape rect (sf::Vector2f(text.getGlobalBounds().width,text.getGlobalBounds().height+20));
-    text.setPosition(0,0);
+    sf::Text text(std::to_string(active_tile), font);
+    sf::RectangleShape rect(sf::Vector2f(text.getGlobalBounds().width, text.getGlobalBounds().height + 20));
+    text.setPosition(0, 0);
     text.setColor(sf::Color::White);
     rect.setPosition(text.getPosition());
-    rect.setFillColor(sf::Color(0,0,0,128));
+    rect.setFillColor(sf::Color(0, 0, 0, 128));
     window.draw(rect);
     window.draw(text);
 }

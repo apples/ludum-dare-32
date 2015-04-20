@@ -21,6 +21,12 @@ class MainGame : public GameState {
     AnimatedSprite playerAnimSpr;
     Camera cam;
     EntID player;
+
+    struct TerrainData {
+        bool is_solid = false;
+    };
+    std::vector<TerrainData> terrain_data = std::vector<TerrainData>(256);
+
 public:
     MainGame();
     MainGame(Json::Value json);

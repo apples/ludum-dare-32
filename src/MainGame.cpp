@@ -18,6 +18,7 @@
 using components::BoundingBox;
 using components::Sprite;
 using components::Solid;
+using components::NoCollide;
 using components::Velocity;
 
 MainGame::MainGame() {
@@ -39,6 +40,17 @@ void MainGame::load_level(std::string fname) {
 }
 
 void MainGame::load(Json::Value json) {
+    {
+        Json::Value tjson;
+        std::ifstream file("data/terraindata.json");
+        file >> tjson;
+        for (auto& tdatum : tjson) {
+            auto id = tdatum["id"].asInt();
+            auto is_solid = tdatum.get("solid",false).asBool();
+            terrain_data[id].is_solid = is_solid;
+        }
+    }
+
     entities = DB{};
 
     auto& tex = texcache.get("terrain");
@@ -47,7 +59,7 @@ void MainGame::load(Json::Value json) {
     std::vector<Sprite> terrasprites;
     terrasprites.reserve(256);
     for (int i = 0; i < 256; ++i) {
-        Sprite sprite{tex, sf::IntRect((i % 16) * sprW, (i / 16) * sprH, sprW, sprH), 0};
+        Sprite sprite{tex, sf::IntRect((i % 16) * sprW, (i / 16) * sprH, sprW, sprH), terrain_data[i].is_solid?1:-1};
         terrasprites.push_back(sprite);
     }
 
@@ -60,12 +72,16 @@ void MainGame::load(Json::Value json) {
         for (auto& tile : row) {
             auto t = tile.asInt();
             if (t > 0) {
-                BoundingBox bb{{x, y, sprW, sprH}};
                 Sprite spr = terrasprites[t];
                 auto ent = entities.makeEntity();
-                entities.makeComponent(ent, bb);
                 entities.makeComponent(ent, spr);
-                entities.makeComponent(ent, Solid{});
+                BoundingBox bb{{x, y, sprW, sprH}};
+                entities.makeComponent(ent, bb);
+                if (terrain_data[t].is_solid) {
+                    entities.makeComponent(ent, Solid{});
+                } else {
+                    entities.makeComponent(ent, NoCollide{});
+                }
             }
             x += sprW;
         }

@@ -50,11 +50,13 @@ void physics_step(DB& db, double timeStep) {
     using components::Velocity;
     using components::BoundingBox;
     using components::Solid;
+    using components::NoCollide;
+    using Ginseng::Not;
 
     auto gravity = 1500.0;
 
-    auto bb_vels = db.query<BoundingBox, Velocity>();
-    auto bbs = db.query<BoundingBox>();
+    auto bb_vels = db.query<BoundingBox, Velocity, Not<NoCollide>>();
+    auto bbs = db.query<BoundingBox, Not<NoCollide>>();
 
     for (auto ent : db.query<CollisionData>()) {
         db.eraseComponent(get<1>(ent).id());

@@ -52,6 +52,9 @@ struct BoundingBox {
 struct Solid {
 };
 
+struct NoCollide {
+};
+
 struct Enemy {
 };
 

@@ -130,7 +130,7 @@ void MainGame::load(Json::Value json) {
     {
         Sprite goomba_sprite = terrasprites[17];
 
-        BoundingBox goomba_bb{{600, 200, sprW, sprH}};
+        BoundingBox goomba_bb{{700, 200, sprW, sprH}};
         Velocity goomba_vel{};
         GoombaAI goombaBrain{};
         AIComponent goomba_ai(goombaBrain);

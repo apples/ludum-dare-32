@@ -69,8 +69,8 @@ struct PlayerBearAIIdle {
 };
 
 struct BearAI {
-    bool hitLeftRight;
-    bool hitDown;
+    bool hitWall;
+    bool onFloor;
     bool shouldJump;
     double maxVel = 2000;
 
@@ -81,9 +81,12 @@ struct BearAI {
         double distance = 500;
         double tmpDist;
         double myX, myY, enemyX, enemyY, targetX, targetY;
+        auto& bb = me.get<BoundingBox>().data();
+        auto& anim = me.get<Sprite>().data();
+        double width = bb.rect.width;
 
-        hitLeftRight = false;
-        hitDown = false;
+        hitWall = false;
+        onFloor = false;
 
         auto enemies = db.query<Enemy>();
         
@@ -108,22 +111,31 @@ struct BearAI {
             auto& coldata = colinfo.data();
 
             for (auto& hit : coldata.hits) {
-                if (hit.dir == CollisionData::HitDir::RIGHT || hit.dir == CollisionData::HitDir::LEFT)
-                    hitLeftRight = true;
-                if (hit.dir == CollisionData::HitDir::DOWN)
-                    hitDown = true;
+                if ((hit.dir == CollisionData::HitDir::RIGHT
+                        || hit.dir == CollisionData::HitDir::LEFT)
+                        && hit.eid.get<Solid>())
+                    hitWall= true;
+                if (hit.dir == CollisionData::HitDir::DOWN
+                        && hit.eid.get<Solid>())
+                    onFloor = true;
             } // end for
         } // end if
 
         if (target) {
-            if (hitLeftRight)
-                vel.acc.x *= -1.0 / 2;
-            if (targetX < myX && -vel.vel.x < maxVel)
+            if (hitWall && onFloor)
+                vel.timed_accs.push_back({{0, -60000}, 0.015});
+            if (targetX < myX + width && -vel.vel.x < maxVel)
                 vel.acc.x -= 2000;
-            if (targetX > myX && vel.vel.x < maxVel)
+            if (targetX > myX - width && vel.vel.x < maxVel)
                 vel.acc.x += 2000;
-            if (!hitDown)
+            if (!onFloor)
                 vel.acc.y += 4000;
+            if (distance < 16) {
+                auto slash = db.makeEntity();
+                db.makeComponent(slash, BoundingBox{{bb.rect.left+(anim.flipped?-1:1)*bb.rect.width,bb.rect.top, 16, 32}});
+                db.makeComponent(slash, PainBox{PainBox::Team::PLAYER});
+                db.makeComponent(slash, TimerComponent{[&db, slash]{db.eraseEntity(slash);},0.10});
+            } // end if
         } // end if
 
         else {
@@ -135,7 +147,7 @@ struct BearAI {
 
 struct GoombaAI {
     bool movingRight = true;
-    bool hitLeftRight;
+    bool hitWall;
     bool onFloor;
     bool shouldJump;
     double maxVel = 2000;
@@ -143,12 +155,8 @@ struct GoombaAI {
     void operator()(Engine& engine, DB& db, EntID me, AIComponent& myAi) {
         auto& vel = me.get<Velocity>().data();
         auto colinfo = me.get<CollisionData>();
-        hitLeftRight = false;
+        hitWall = false;
         onFloor = false;
-        shouldJump = false;
-
-        if (std::rand() % 10 < 2)
-            shouldJump = true;
 
         if (colinfo) {
             auto& coldata = colinfo.data();
@@ -161,14 +169,16 @@ struct GoombaAI {
                         return;
                     }
                 }
-                if (hit.dir == CollisionData::HitDir::RIGHT || hit.dir == CollisionData::HitDir::LEFT)
-                    hitLeftRight = true;
+                if ((hit.dir == CollisionData::HitDir::RIGHT
+                        || hit.dir == CollisionData::HitDir::LEFT)
+                        && hit.eid.get<Solid>())
+                    hitWall = true;
                 if (hit.dir == CollisionData::HitDir::DOWN || hit.eid.get<Solid>())
                     onFloor = true;
             } // end for
         } // end if
 
-        if (hitLeftRight)
+        if (hitWall)
             movingRight = !movingRight;
         if (movingRight && vel.vel.x < maxVel)
             vel.acc.x += 500;
@@ -176,8 +186,6 @@ struct GoombaAI {
             vel.acc.x -= 500;
         if (!onFloor && vel.vel.y < maxVel)
             vel.acc.y += 4000;
-        if (vel.vel.y == 0 && shouldJump)
-            vel.acc.y -= 40000;
     } // end operator()
 
 }; // end GoombaAI

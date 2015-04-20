@@ -166,7 +166,7 @@ void LevelEditor::update(Engine &engine, double time_step) {
         ++delta.x;
     }
 
-    camoffset -= (delta * 10.f);
+    camoffset -= (delta * 1000.f * float(time_step));
 
     if (engine.wasKeyPressed(sf::Keyboard::F2)) {
         saver = std::make_shared<LevelEditorSave>("SAVE");

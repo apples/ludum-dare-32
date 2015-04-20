@@ -7,9 +7,7 @@
 #include "components.hpp"
 #include "LoadAnimation.hpp"
 
-using components::Solid;
-using components::LookAt;
-using components::LockInput;
+using namespace components;
 
 void update_ais(Engine& engine, DB& db) {
     for (auto ent : db.query<AIComponent>()) {
@@ -100,6 +98,8 @@ void PlayerAIIdle::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_
 
 void PlayerBearAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_ai) {
     auto& vel = me.get<Velocity>().data();
+    auto& bb = me.get<BoundingBox>().data();
+    auto& anim = me.get<Sprite>().data();
     auto collinfo = me.get<CollisionData>();
 
     {
@@ -135,7 +135,7 @@ void PlayerBearAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_
                 db.eraseComponent(la.id());
             }
         }
-        db.makeComponent(me, AIComponent{BearAI{}}); // TODO: BearAI
+        db.makeComponent(me, AIComponent{BearAI{}});
         return;
     }
     if (engine.wasKeyPressed(sf::Keyboard::Return)) {
@@ -151,6 +151,9 @@ void PlayerBearAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_
         return;
     }
     if (engine.wasKeyPressed(sf::Keyboard::Space)) {
-        //TODO: Attack
+        auto slash = db.makeEntity();
+        db.makeComponent(slash, BoundingBox{{bb.rect.left+(anim.flipped?-1:1)*bb.rect.width,bb.rect.top,16,32}});
+        db.makeComponent(slash, PainBox{PainBox::Team::PLAYER});
+        db.makeComponent(slash, TimerComponent{[&db,slash]{db.eraseEntity(slash);},0.10});
     }
 }

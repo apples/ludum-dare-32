@@ -131,8 +131,8 @@ void MainGame::load(Json::Value json) {
         Sprite goomba_sprite = terrasprites[17];
 
         BoundingBox goomba_bb{{600, 200, sprW, sprH}};
-        Velocity goomba_vel{{50, 0}};
-        GoombaAI goombaBrain(&entities);
+        Velocity goomba_vel{};
+        GoombaAI goombaBrain{};
         AIComponent goomba_ai(goombaBrain);
 
         EntID goomba = entities.makeEntity();
@@ -156,6 +156,7 @@ void MainGame::update(Engine& engine, double time_step) {
     update_ais(engine, entities);
     physics_step(entities, time_step);
     update_sprites(entities, time_step);
+    update_timers(entities, time_step);
 
     {
         auto lookat = player;

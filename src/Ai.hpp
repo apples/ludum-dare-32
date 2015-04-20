@@ -14,11 +14,7 @@
 #include <memory>
 #include <cmath>
 
-using components::BoundingBox;
-using components::Sprite;
-using components::Velocity;
-using components::Enemy;
-using components::Solid;
+using namespace components;
 
 class Engine;
 
@@ -138,18 +134,11 @@ struct BearAI {
     
 
 struct GoombaAI {
-    DB *database;
-    bool movingRight;
+    bool movingRight = true;
     bool hitLeftRight;
     bool onFloor;
     bool shouldJump;
-    double maxVel;
-
-    GoombaAI(DB *input_db) {
-        database = input_db;
-        movingRight = true;
-        maxVel = 2000;
-    } // end constructor
+    double maxVel = 2000;
 
     void operator()(Engine& engine, DB& db, EntID me, AIComponent& myAi) {
         auto& vel = me.get<Velocity>().data();
@@ -165,6 +154,13 @@ struct GoombaAI {
             auto& coldata = colinfo.data();
 
             for (auto& hit : coldata.hits) {
+                if (auto pb = hit.eid.get<PainBox>()) {
+                    if (pb.data().team == PainBox::Team::PLAYER) {
+                        //TODO: smokebomb
+                        db.eraseEntity(me);
+                        return;
+                    }
+                }
                 if (hit.dir == CollisionData::HitDir::RIGHT || hit.dir == CollisionData::HitDir::LEFT)
                     hitLeftRight = true;
                 if (hit.dir == CollisionData::HitDir::DOWN || hit.eid.get<Solid>())

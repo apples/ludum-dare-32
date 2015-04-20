@@ -81,7 +81,7 @@ void MainGame::load(Json::Value json) {
                 vel.acc.x += 2000;
             }
             if (engine.wasKeyPressed(sf::Keyboard::Up)) {
-                vel.acc.y -= 40000;
+                vel.timed_accs.push_back({{0,-40000},0.015});
             }
         }};
 

@@ -33,6 +33,8 @@ class LevelEditor : public GameState {
     std::shared_ptr<LevelEditorSave> loader;
 
     std::string fname = "";
+
+    sf::Vector2f camoffset;
 public:
     LevelEditor();
 

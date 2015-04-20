@@ -3,6 +3,7 @@
 //
 
 #include "PhysicsEngine.hpp"
+#include "echo.hpp"
 
 namespace {
 
@@ -62,6 +63,12 @@ void physics_step(DB& db, double timeStep) {
     for (auto ent_v : bb_vels) {
         Velocity &v_vel = get<2>(ent_v).data();
         v_vel.acc.y += gravity;
+        for (auto& p : v_vel.timed_accs) {
+            double t = std::min(p.second,timeStep);
+            p.second -= t;
+            v_vel.acc += p.first * float(t/timeStep);
+        }
+        v_vel.timed_accs.erase(std::remove_if(v_vel.timed_accs.begin(), v_vel.timed_accs.end(), [](auto& p){return p.second<=0;}), v_vel.timed_accs.end());
     }
 
     auto do_axis = [&](auto get_axis) {

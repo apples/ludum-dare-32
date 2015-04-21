@@ -41,6 +41,11 @@ void MainGame::load_level(std::string fname) {
 }
 
 void MainGame::load(Json::Value json) {
+    animations.clear();
+    animations["player"] = loadAnimation("player.json", texcache);
+    animations["bear"] = loadAnimation("bear.json", texcache);
+    animations["goomba"] = loadAnimation("goomba.json", texcache);
+
     {
         Json::Value tjson;
         std::ifstream file("data/terraindata.json");
@@ -91,7 +96,6 @@ void MainGame::load(Json::Value json) {
     }
     {
         Sprite player_sprite;
-        animations.insert(make_pair("player", loadAnimation("player.json", texcache)));
         player_sprite.spr.setAnimation(animations.at("player").at("walk"));
         player_sprite.spr.setFrameTime(sf::seconds(0.25f));
         player_sprite.spr.setLooped(true);
@@ -104,8 +108,7 @@ void MainGame::load(Json::Value json) {
         AIComponent player_ai{AIComponent{PlayerAI{[=](EntID peid) {
             auto pbb = peid.get<BoundingBox>().data().rect;
             Sprite bear_sprite;
-            auto bearanims = loadAnimation("bear.json", texcache);
-            bear_sprite.spr.setAnimation(bearanims.at("walk"));
+            bear_sprite.spr.setAnimation(animations.at("bear").at("walk"));
             bear_sprite.spr.setFrameTime(sf::seconds(0.25f));
             bear_sprite.spr.setLooped(true);
             bear_sprite.spr.update(sf::seconds(1));
@@ -129,8 +132,7 @@ void MainGame::load(Json::Value json) {
     }
     {
         Sprite goomba_sprite;
-        auto goombaanims = loadAnimation("goomba.json", texcache);
-        goomba_sprite.spr.setAnimation(goombaanims.at("walk"));
+        goomba_sprite.spr.setAnimation(animations.at("goomba").at("walk"));
 
         BoundingBox goomba_bb{{750, 200, sprW, sprH}};
         Velocity goomba_vel{};
@@ -146,8 +148,7 @@ void MainGame::load(Json::Value json) {
     }
     {
         Sprite goomba_sprite;
-        auto goombaanims = loadAnimation("goomba.json", texcache);
-        goomba_sprite.spr.setAnimation(goombaanims.at("walk"));
+        goomba_sprite.spr.setAnimation(animations.at("goomba").at("walk"));
 
         BoundingBox goomba_bb{{700, 200, sprW, sprH}};
         Velocity goomba_vel{};
@@ -163,8 +164,7 @@ void MainGame::load(Json::Value json) {
     }
     {
         Sprite goomba_sprite;
-        auto goombaanims = loadAnimation("goomba.json", texcache);
-        goomba_sprite.spr.setAnimation(goombaanims.at("walk"));
+        goomba_sprite.spr.setAnimation(animations.at("goomba").at("walk"));
 
         BoundingBox goomba_bb{{500, 200, sprW, sprH}};
         Velocity goomba_vel{};

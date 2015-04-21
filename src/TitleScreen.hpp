@@ -20,7 +20,7 @@ class TitleScreen : public GameState {
     std::vector<std::pair<std::string, std::function<std::shared_ptr<GameState>()>>> items;
     int selected;
 public:
-    TitleScreen();
+    TitleScreen(Engine& engine);
     virtual bool halts_update() const override;
     virtual bool halts_draw() const override;
     virtual void update(Engine& engine, double time_step) override;

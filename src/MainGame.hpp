@@ -28,10 +28,10 @@ class MainGame : public GameState {
     std::vector<TerrainData> terrain_data = std::vector<TerrainData>(256);
 
 public:
-    MainGame();
-    MainGame(Json::Value json);
-    void load_level(std::string fname);
-    void load(Json::Value json);
+    MainGame(Engine& engine);
+    MainGame(Engine& engine, Json::Value json);
+    void load_level(Engine& engine, std::string fname);
+    void load(Engine& engine, Json::Value json);
 
     virtual bool halts_update() const override;
     virtual bool halts_draw() const override;

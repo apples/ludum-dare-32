@@ -243,7 +243,7 @@ void LevelEditor::update(Engine &engine, double time_step) {
     }
 
     if (engine.wasKeyPressed(sf::Keyboard::F5)) {
-        engine.states.push(std::make_shared<MainGame>(json));
+        engine.states.push(std::make_shared<MainGame>(engine, json));
     }
 
     if (engine.wasKeyPressed(sf::Keyboard::Space)) {

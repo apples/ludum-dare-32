@@ -15,7 +15,7 @@ Engine::Engine() {
 }
 
 void Engine::go() {
-    states.push(std::make_shared<TitleScreen>());
+    states.push(std::make_shared<TitleScreen>(*this));
     music.loadJson("music.json");
     music.setNextSong("intro");
     music.setNextSong("partA");
@@ -63,6 +63,7 @@ void Engine::poll_events() {
 
 void Engine::update() {
     double time_step = clock.getElapsedTime().asSeconds();
+    if (time_step > 0.025) time_step = 0.025;
 	window.setTitle("Toy Box Escape-- fps: " + std::to_string(int(1 / time_step)));
     music.update();
     clock.restart();

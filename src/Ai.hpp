@@ -14,6 +14,113 @@
 #include <memory>
 #include <cmath>
 
+namespace behavior {
+
+enum class status {
+    RUNNING,
+    SUCCESS,
+    FAILURE
+};
+
+struct sequence {
+    std::vector<std::function<status()>> funcs;
+    unsigned index = 0;
+
+    template <typename... Ts>
+    sequence(Ts... ts) : funcs{ std::move(ts)... } {}
+
+    status operator()() {
+        status result = funcs[index]();
+        while (result == status::SUCCESS && index < funcs.size()) {
+            ++index;
+            if (index >= funcs.size()) {
+                index = 0;
+                return status::SUCCESS;
+            }
+            result = funcs[index]();
+        }
+        if (result == status::FAILURE) {
+            index = 0;
+        }
+        return result;
+    }
+};
+
+struct selector {
+    std::vector<std::function<status()>> funcs;
+    unsigned index = 0;
+
+    template <typename... Ts>
+    selector(Ts... ts) : funcs{ std::move(ts)... } {}
+
+    status operator()() {
+        status result = funcs[index]();
+        while (result == status::FAILURE && index < funcs.size()) {
+            ++index;
+            if (index >= funcs.size()) {
+                index = 0;
+                return status::FAILURE;
+            }
+            result = funcs[index]();
+        }
+        if (result == status::SUCCESS) {
+            index = 0;
+        }
+        return result;
+    }
+};
+
+struct inverter {
+    std::function<status()> func;
+    status operator()() {
+        status result = func();
+        if (result == status::SUCCESS) {
+            result = status::FAILURE;
+        } else if (result == status::FAILURE) {
+            result = status::SUCCESS;
+        }
+        return result;
+    }
+};
+
+struct until_failure {
+    std::function<status()> func;
+    status operator()() {
+        status result = status::SUCCESS;
+        while (result != status::FAILURE) {
+            result = func();
+            if (result == status::RUNNING) {
+                return status::RUNNING;
+            }
+        }
+        return status::SUCCESS;
+    }
+};
+
+struct never_fail {
+    std::function<status()> func;
+    status operator()() {
+        status result = func();
+        if (result == status::FAILURE) {
+            result = status::SUCCESS;
+        }
+        return result;
+    }
+};
+
+struct when_running {
+    std::function<status()> funcA, funcB;
+    status operator()() {
+        status result = funcA();
+        if (result != status::FAILURE) {
+            funcB(); // TODO: result?
+        }
+        return result;
+    }
+};
+
+} // namespace behavior
+
 using namespace components;
 
 class Engine;
@@ -30,6 +137,8 @@ struct AIComponent {
 
 struct PlayerAI {
     std::function<EntID(EntID)> make_bear;
+    std::function<behavior::status()> behaviors;
+    PlayerAI(std::function<EntID(EntID)> make_bear, Engine& engine, DB& db, EntID me);
     void operator()(Engine& engine, DB&, EntID me, AIComponent &my_ai);
 }; // end PlayerAI
 

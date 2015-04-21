@@ -22,25 +22,25 @@ using components::NoCollide;
 using components::Velocity;
 using components::LookAt;
 
-MainGame::MainGame() {
-    load_level("data/sandy.json");
+MainGame::MainGame(Engine& engine) {
+    load_level(engine, "data/sandy.json");
     cam.setSize(800, 600);
 }
 
-MainGame::MainGame(Json::Value json) {
-    load(json);
+MainGame::MainGame(Engine& engine, Json::Value json) {
+    load(engine, json);
     cam.setSize(800, 600);
 }
 
-void MainGame::load_level(std::string fname) {
+void MainGame::load_level(Engine& engine, std::string fname) {
     Json::Value json;
     std::ifstream file(fname.c_str());
     file >> json;
 
-    load(json);
+    load(engine, json);
 }
 
-void MainGame::load(Json::Value json) {
+void MainGame::load(Engine& engine, Json::Value json) {
     animations.clear();
     animations["player"] = loadAnimation("player.json", texcache);
     animations["bear"] = loadAnimation("bear.json", texcache);
@@ -95,6 +95,8 @@ void MainGame::load(Json::Value json) {
         y += sprH;
     }
     {
+        player = entities.makeEntity();
+
         Sprite player_sprite;
         player_sprite.spr.setAnimation(animations.at("player").at("walk"));
         player_sprite.spr.setFrameTime(sf::seconds(0.25f));
@@ -122,9 +124,8 @@ void MainGame::load(Json::Value json) {
             entities.makeComponent(bear, bear_bb);
             entities.makeComponent(bear, bear_vel);
             return bear;
-        }}}};
+        },engine,entities,player}}};
 
-        player = entities.makeEntity();
         entities.makeComponent(player, player_sprite);
         entities.makeComponent(player, player_bb);
         entities.makeComponent(player, player_vel);

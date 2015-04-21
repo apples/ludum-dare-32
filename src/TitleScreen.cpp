@@ -20,7 +20,7 @@ std::function<std::shared_ptr<GameState>()> maker(Ts... ts) {
 
 } // static
 
-TitleScreen::TitleScreen() {
+TitleScreen::TitleScreen(Engine& engine) {
     if (!font.loadFromFile("data/OFLGoudyStM.otf")) {
         throw std::runtime_error("Failed to load data/OFLGoudyStM.otf");
     }
@@ -29,7 +29,7 @@ TitleScreen::TitleScreen() {
     text.setString("Title Screen");
     text.setOrigin(text.getLocalBounds().width/2.f, text.getLocalBounds().height/2.f);
 
-    items.emplace_back(std::make_pair("Main Game", maker<MainGame>()));
+    items.emplace_back(std::make_pair("Main Game", [&]{return std::make_shared<MainGame>(engine);}));
     items.emplace_back(std::make_pair("Level Editor", maker<LevelEditor>()));
     items.emplace_back(std::make_pair("Graphics Sandbox", maker<GraphicsSandbox>()));
     items.emplace_back(std::make_pair("Sound Playground", maker<SoundPlayground>()));

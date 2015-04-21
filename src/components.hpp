@@ -87,6 +87,10 @@ struct TimerComponent {
     double duration;
 }; // end TimerComponent
 
+struct AttackTimer {
+    double dur;
+};
+
 inline void update_timers(DB & db, double timeStep) {
     auto items = db.query<TimerComponent>();
 
@@ -96,6 +100,12 @@ inline void update_timers(DB & db, double timeStep) {
         if (std::get<1>(ent).data().duration <= 0)
             std::get<1>(ent).data().func();
     } // end for
+    for (auto ent : db.query<AttackTimer>()) {
+        std::get<1>(ent).data().dur -= timeStep;
+        if (std::get<1>(ent).data().dur <= 0) {
+            db.eraseComponent(std::get<1>(ent).id());
+        }
+    }
 } // end updateTimers
 
 } // namespace components

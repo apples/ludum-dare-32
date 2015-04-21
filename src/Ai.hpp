@@ -70,6 +70,17 @@ struct BearAI {
         auto& anim = me.get<Sprite>().data();
         double width = bb.rect.width;
 
+        AiStateComponent state;
+        state.anim_group = "bear";
+        bool attacking = bool(me.get<AttackTimer>());
+
+        if (!attacking) {
+            state.flipped = me.get<Sprite>().data().flipped;
+            state.anim_group = "bear";
+            state.anim_name = "stand";
+            db.makeComponent(me, state);
+        }
+
         hitWall = false;
         onFloor = false;
 
@@ -109,15 +120,30 @@ struct BearAI {
         if (target) {
             if (hitWall && onFloor)
                 vel.timed_accs.push_back({{0, -60000}, 0.015});
-            if (targetX < myX + width && -vel.vel.x < maxVel)
+            if (targetX < myX + width && -vel.vel.x < maxVel) {
                 vel.acc.x -= 1000;
-            if (targetX > myX - width && vel.vel.x < maxVel)
+                if (!attacking) {
+                    state.anim_name = "walk";
+                    state.flipped = true;
+                    db.makeComponent(me, state);
+                }
+            }
+            if (targetX > myX - width && vel.vel.x < maxVel) {
                 vel.acc.x += 1000;
+                if (!attacking) {
+                    state.anim_name = "walk";
+                    state.flipped = false;
+                    db.makeComponent(me, state);
+                }
+            }
             if (distance < 16) {
                 auto slash = db.makeEntity();
                 db.makeComponent(slash, BoundingBox{{bb.rect.left+(anim.flipped?-1:1)*bb.rect.width,bb.rect.top, 16, 32}});
                 db.makeComponent(slash, PainBox{PainBox::Team::PLAYER});
+                db.makeComponent(me, AttackTimer{0.10});
                 db.makeComponent(slash, TimerComponent{[&db, slash]{db.eraseEntity(slash);},0.10});
+                state.anim_name = "attack";
+                db.makeComponent(me,state);
             } // end if
         } // end if
 

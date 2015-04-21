@@ -189,10 +189,32 @@ struct GoombaAI {
 
         if (hitWall)
             movingRight = !movingRight;
-        if (movingRight && vel.vel.x < maxVel)
+        if (movingRight && vel.vel.x < maxVel) {
             vel.acc.x += 500;
-        if (!movingRight && -vel.vel.x < maxVel)
+            if (auto state1 = me.get<AiStateComponent>()) {
+                state1.data().flipped = false;
+            }
+            else {
+                AiStateComponent state;
+                state.anim_name = "walk";
+                state.anim_group = "goomba";
+                state.flipped = false;
+                db.makeComponent(me, state);
+            }
+        }
+        if (!movingRight && -vel.vel.x < maxVel) {
             vel.acc.x -= 500;
+            if (auto state1 = me.get<AiStateComponent>()) {
+                state1.data().flipped = true;
+            }
+            else {
+                AiStateComponent state;
+                state.anim_name = "walk";
+                state.anim_group = "goomba";
+                state.flipped = true;
+                db.makeComponent(me, state);
+            }
+        }
         if (!onFloor && vel.vel.y < maxVel)
             vel.acc.y += 4000;
     } // end operator()

@@ -107,8 +107,10 @@ LevelEditor::LevelEditor() {
     }
     json["player_spawn"]["row"] = 3;
     json["player_spawn"]["col"] = 3;
-    json["exit"]["row"] = 10;
-    json["exit"]["col"] = 10;
+    json["exit"]["row"] = 9;
+    json["exit"]["col"] = 9;
+    json["goomba_spawn"]["row"] = 7;
+    json["goomba_spawn"]["col"] = 7;
 }
 
 bool LevelEditor::halts_update() const {
@@ -157,6 +159,10 @@ void LevelEditor::update(Engine &engine, double time_step) {
                     case 254:
                         json["exit"]["row"] = ty;
                         json["exit"]["col"] = tx;
+                        break;
+                    case 253:
+                        json["goomba_spawn"]["row"] = ty;
+                        json["goomba_spawn"]["col"] = tx;
                         break;
                 }
             }
@@ -283,6 +289,26 @@ void LevelEditor::draw(sf::RenderWindow &window) const {
         sprite.setPosition(c * sprW + camoffset.x, r * sprH + camoffset.y);
         auto quot = 15;
         auto rem = 15;
+        sprite.setTextureRect(sf::IntRect(rem * sprW, quot * sprH, sprW, sprH));
+        window.draw(sprite);
+    }
+
+    {
+        auto r = json["exit"]["row"].asInt();
+        auto c = json["exit"]["col"].asInt();
+        sprite.setPosition(c * sprW + camoffset.x, r * sprH + camoffset.y);
+        auto quot = 15;
+        auto rem = 14;
+        sprite.setTextureRect(sf::IntRect(rem * sprW, quot * sprH, sprW, sprH));
+        window.draw(sprite);
+    }
+
+    {
+        auto r = json["goomba_spawn"]["row"].asInt();
+        auto c = json["goomba_spawn"]["col"].asInt();
+        sprite.setPosition(c * sprW + camoffset.x, r * sprH + camoffset.y);
+        auto quot = 15;
+        auto rem = 13;
         sprite.setTextureRect(sf::IntRect(rem * sprW, quot * sprH, sprW, sprH));
         window.draw(sprite);
     }

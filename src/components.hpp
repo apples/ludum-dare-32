@@ -8,6 +8,12 @@
 
 namespace components {
 
+struct AiStateComponent {
+    std::string anim_name;
+    std::string anim_group;
+    bool flipped;
+}; // end AiStateComponent
+
 struct Position {
     sf::Vector2f pos;
 };
@@ -27,6 +33,7 @@ struct Sprite {
     AnimatedSprite spr;
     int layer = 0;
     bool flipped = false;
+    AiStateComponent prev_state;
 
     Sprite() = default;
     Sprite(sf::Sprite sspr) {

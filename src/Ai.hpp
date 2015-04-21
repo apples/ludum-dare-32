@@ -28,13 +28,6 @@ struct AIComponent {
 
 };
 
-struct AiStateComponent {
-    std::string anim_name;
-    std::string anim_group;
-    bool flipped;
-
-}; // end AiStateComponent
-
 struct PlayerAI {
     std::function<EntID(EntID)> make_bear;
     void operator()(Engine& engine, DB&, EntID me, AIComponent &my_ai);

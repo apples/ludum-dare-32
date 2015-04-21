@@ -218,8 +218,11 @@ void MainGame::update_animations() {
         AiStateComponent& ai = std::get<1>(ent).data();
         Sprite& spr = std::get<2>(ent).data();
 
-        spr.flipped = ai.flipped;
-        spr.spr.setAnimation(animations.at(ai.anim_group).at(ai.anim_name));
+        if (std::tie(ai.flipped,ai.anim_name,ai.anim_group) != std::tie(spr.prev_state.flipped,spr.prev_state.anim_name,spr.prev_state.anim_group)) {
+            spr.flipped = ai.flipped;
+            spr.spr.setAnimation(animations.at(ai.anim_group).at(ai.anim_name));
+            spr.prev_state = ai;
+        }
     }
 }
 

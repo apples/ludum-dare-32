@@ -132,7 +132,7 @@ void PlayerBearAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_
     bool attacking = false;
 
     if (auto asc = me.get<AiStateComponent>()) {
-        if (anim.spr.isPlaying() && (asc.data().anim_name=="hurt" || asc.data().anim_name=="attack")) {
+        if ((asc.data().anim_name=="hurt" || asc.data().anim_name=="attack")) {
             attacking = true;
         }
     }
@@ -205,7 +205,7 @@ void PlayerBearAI::operator()(Engine& engine, DB& db, EntID me, AIComponent& my_
         auto slash = db.makeEntity();
         db.makeComponent(slash, BoundingBox{{bb.rect.left+(anim.flipped?-1:1)*bb.rect.width,bb.rect.top,16,32}});
         db.makeComponent(slash, PainBox{PainBox::Team::PLAYER});
-        db.makeComponent(slash, TimerComponent{[&db,slash]{db.eraseEntity(slash);},0.10});
+        db.makeComponent(slash, TimerComponent{[&db,slash,me]{db.eraseEntity(slash);if (auto asc = me.get<AiStateComponent>()) {db.eraseComponent(asc.id());}},0.10});
         state.anim_name = "attack";
         db.makeComponent(me,state);
     }

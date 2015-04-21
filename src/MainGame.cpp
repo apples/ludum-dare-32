@@ -215,8 +215,8 @@ void MainGame::update_animations() {
     auto items = entities.query<AiStateComponent, Sprite>();
 
     for (auto& ent : items) {
-        AiStateComponent ai = std::get<1>(ent).data();
-        Sprite spr = std::get<2>(ent).data();
+        AiStateComponent& ai = std::get<1>(ent).data();
+        Sprite& spr = std::get<2>(ent).data();
 
         spr.flipped = ai.flipped;
         spr.spr.setAnimation(animations.at(ai.anim_group).at(ai.anim_name));
